@@ -1,7 +1,7 @@
 CC:= gcc
 override CFLAGS+= -O3 -D_POSIX_SOURCE -D_GNU_SOURCE -m64 -falign-functions=64 -Wno-unused-result -Wunused-variable -Wunused-but-set-variable -Wall
 LIBS:= -lpthread -lrt -lm
-UTILS:= ../util/util.o   ../util/imc-utils.o ../util/gpu-utils.o ../util/msr-utils.o ../util/amd-df-utils.o ../util/amd-gpu-utils.o
+UTILS:= ../util/util.o   ../util/imc-utils.o ../util/gpu-utils.o ../util/msr-utils.o ../util/amd-df-utils.o ../util/amd-gpu-utils.o ../util/nvidia-gpu-utils.o
 
 all: obj bin data driver
 

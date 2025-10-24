@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include "../util/amd-gpu-utils.h"
 #include "../util/amd-df-utils.h"
+#include "../util/nvidia-gpu-utils.h"
 #include "../util/gpu-utils.h"
 #include "../util/imc-utils.h"
 #include "../util/util.h"
@@ -187,6 +188,49 @@ static __attribute__((noinline)) int monitor_gpu(void *in)
 	return 0;
 }
 
+// Monitor NVIDIA dGPU frequency and utilization during each sampling interval TIME_GPU
+static __attribute__((noinline)) int monitor_nvidia_gpu(void *in)
+{
+	// Wait for 5 seconds
+	sleep(5);
+
+	struct args_t *arg = (struct args_t *)in;
+
+	// Create the output file for NVIDIA GPU trace
+	FILE *gpu_file;
+	char gpu_filename[200];
+	sprintf(gpu_filename, "./out/nvidia_gpu_%d_%06d.out", arg->selector, rept_index);
+	gpu_file = fopen((char *)gpu_filename, "w");
+	if (gpu_file == NULL)
+	{
+		perror("NVIDIA GPU output file open fail");
+		return 0;
+	}
+
+	uint64_t total_run = arg->iters * TIME_IMC / TIME_GPU;
+	uint64_t time;
+
+	// Collect measurements
+	for (uint64_t i = 0; i < total_run; i++)
+	{
+		// Wait before next measurement
+		nanosleep((const struct timespec[]){{0, TIME_GPU}}, NULL);
+		time = get_time();
+
+		// Sample NVIDIA GPU frequency and utilization
+		// GPU index 0 for the first/only NVIDIA GPU
+		int freq = nvidia_gpu_freq(0);
+		int util = nvidia_gpu_utilization(0);
+		
+		// Frequency (MHz), Utilization (%), timestamp
+		fprintf(gpu_file, "%d, %d, %" PRIu64 " \n", freq, util, time);
+	}
+
+	fclose(gpu_file);
+
+	return 0;
+}
+
 void read_selectors(char *filename, char **selectors, int *num_selectors)
 {
 	// Open the selector file
@@ -251,12 +295,28 @@ int main(int argc, char *argv[])
 	if (gpu_trace > 0)
 	{
 #if AMD
-		// Sample the amdgpu frequency
+		// Initialize AMD iGPU (index 0 = first AMD GPU = Radeon iGPU)
+		int amd_init_ret = amd_gpu_init(0);
+		if (amd_init_ret != 0)
+		{
+			perror("AMD iGPU initialization fail\n");
+			exit(1);
+		}
+		
+		// Test read AMD GPU frequency
 		uint64_t amd_freq_read = amd_gpu_freq();
 		if (amd_freq_read == -1)
 		{
 			perror("AMD frequency reading fail\n");
 			exit(1);
+		}
+		
+		// Initialize NVIDIA dGPU monitoring
+		int nvidia_init_ret = nvidia_gpu_init();
+		if (nvidia_init_ret != 0)
+		{
+			fprintf(stderr, "Warning: NVIDIA GPU initialization fail - will skip NVIDIA monitoring\n");
+			// Don't exit - continue with AMD GPU only
 		}
 #else
 		// Initialize IGPU frequency&rcs0-busy reading
@@ -310,7 +370,9 @@ int main(int argc, char *argv[])
 			// thread for the opengl workload
 			// thread_IMC for measuring IMC perf events
 			// thread_GPU for measuring iGPU perf events
-			pthread_t thread, thread_IMC, thread_GPU;
+			// thread_NVIDIA_GPU for measuring NVIDIA dGPU perf events (AMD systems only)
+			pthread_t thread, thread_IMC, thread_GPU, thread_NVIDIA_GPU;
+			int nvidia_thread_created = 0;
 
 			char command[256];
 
@@ -327,6 +389,11 @@ int main(int argc, char *argv[])
 			if (gpu_trace > 0)
 			{
 				pthread_create(&thread_GPU, NULL, (void *)&monitor_gpu, (void *)&arg);
+#if AMD
+				// Also monitor NVIDIA GPU on AMD systems
+				pthread_create(&thread_NVIDIA_GPU, NULL, (void *)&monitor_nvidia_gpu, (void *)&arg);
+				nvidia_thread_created = 1;
+#endif
 			}
 
 			if (imc_trace > 0)
@@ -336,6 +403,10 @@ int main(int argc, char *argv[])
 			if (gpu_trace > 0)
 			{
 				pthread_join(thread_GPU, NULL);
+				if (nvidia_thread_created)
+				{
+					pthread_join(thread_NVIDIA_GPU, NULL);
+				}
 			}
 
 			rept_index += 1;
@@ -355,6 +426,7 @@ int main(int argc, char *argv[])
 	if (gpu_trace > 0)
 	{
 		amd_gpu_end();
+		nvidia_gpu_end();
 	}
 #endif
 

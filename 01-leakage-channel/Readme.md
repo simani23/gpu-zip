@@ -28,6 +28,14 @@ Script `./scripts/exp2/exp2.sh` inspects the iGPU graphical data compression on 
 
 Script `./scripts/exp1/exp1.sh` is tested on an Intel i7-8700 (Ubuntu 22.04), i5-1135G7 (Debian 11.6), i7-12700K (Ubuntu 22.04), and AMD Ryzen 7 4800U (Ubuntu 20.04).
 Script `./scripts/exp2/exp2.sh` is tested on an Intel i7-8700 running Ubuntu 22.04.
+
+**Updated for AMD processor with Radeon iGPU and NVIDIA GeForce RTX dGPU:**
+This version supports monitoring both AMD Radeon integrated GPU and NVIDIA discrete GPU simultaneously.
+- Requires NVIDIA drivers and nvidia-smi utility installed
+- Will monitor AMD iGPU frequency via sysfs hwmon interface
+- Will monitor NVIDIA dGPU frequency and utilization via nvidia-smi
+- Both GPU traces will be saved in separate output files
+
 Running the scripts on other CPUs will likely require modification to the code.
 
 ## How to build
@@ -44,10 +52,34 @@ On an Intel i7-12700K
 make CFLAGS+=-DALDER
 ```
 
-On an AMD Ryzen 7 4800U
+On an AMD Ryzen 7 4800U (or AMD processor with Radeon iGPU only)
 
 ```bash
 make CFLAGS+=-DAMD
+```
+
+**On an AMD processor with Radeon iGPU and NVIDIA dGPU (e.g., Ryzen + RTX)**
+
+```bash
+make CFLAGS+=-DAMD
+```
+
+**Prerequisites for AMD + NVIDIA configuration:**
+- NVIDIA drivers installed
+- nvidia-smi utility available in PATH
+- Both AMD and NVIDIA GPUs detected by the system
+
+To verify your setup:
+```bash
+# Quick check
+./detect_gpus.sh
+
+# Or manually:
+# Check AMD GPU
+ls /sys/class/hwmon/*/name | xargs grep -l amdgpu
+
+# Check NVIDIA GPU
+nvidia-smi -L
 ```
 
 To build the graphical PoC: follow the instruction in `../poc/gpu-create`.
@@ -64,6 +96,12 @@ For each pattern, the PoC runs for 400 seconds.
 
 The hardware measurement data can be found at folders `./data/exp1-${date}` (GPU, IMC events and memory utilization) and *Rendering time per frame* can be found in `./data/time-exp1-${date}`.
 
+**For AMD + NVIDIA systems:**
+- AMD iGPU data: `./data/exp1-${date}/gpu_*.out` (frequency in MHz, timestamp)
+- NVIDIA dGPU data: `./data/exp1-${date}/nvidia_gpu_*.out` (frequency in MHz, utilization %, timestamp)
+- IMC data: `./data/exp1-${date}/imc_*.out` (memory traffic)
+- Memory utilization: `./data/exp1-${date}/mem_*.out`
+
 To parse the data:
 
 ```bash
@@ -72,6 +110,8 @@ python exp1.py ../../data/exp1-${date}/ ../../data/time-exp1-${date}/
 ```
 
 The output contains average and std of *Rendering time per frame* and *DRAM traffic per frame* for reproducing Table 2, and *GPU frequency* and *Peak RSS* for sanity check.
+
+**Note for AMD + NVIDIA systems:** The Python script analyzes the AMD iGPU data (gpu_*.out files). NVIDIA GPU data (nvidia_gpu_*.out files) is collected separately and can be analyzed independently if needed. The AMD iGPU is typically the primary graphics processor for the leakage channel analysis.
 
 ## How to reproduce Figure 2 and 3 in the paper
 
