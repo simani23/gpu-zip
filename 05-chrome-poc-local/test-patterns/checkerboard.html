@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkerboard Test Pattern</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="checkerboard"></canvas>
+  
+  <script>
+    // Generate a checkerboard pattern
+    const canvas = document.getElementById('checkerboard');
+    const ctx = canvas.getContext('2d');
+    
+    // Get parameters from URL or use defaults
+    const params = new URLSearchParams(window.location.search);
+    const squareSize = parseInt(params.get('size') || '48');
+    const width = parseInt(params.get('width') || '2000');
+    const height = parseInt(params.get('height') || '2000');
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Draw checkerboard
+    for (let y = 0; y < height; y += squareSize) {
+      for (let x = 0; x < width; x += squareSize) {
+        const isWhite = ((x / squareSize) + (y / squareSize)) % 2 === 0;
+        ctx.fillStyle = isWhite ? '#FFFFFF' : '#000000';
+        ctx.fillRect(x, y, squareSize, squareSize);
+      }
+    }
+    
+    // Notify parent if in iframe
+    if (window.parent !== window) {
+      window.parent.postMessage({type: 'pattern-loaded', pattern: 'checkerboard'}, '*');
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Random Noise Test Pattern</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="noise"></canvas>
+  
+  <script>
+    // Generate random noise pattern (highly non-compressible)
+    const canvas = document.getElementById('noise');
+    const ctx = canvas.getContext('2d');
+    
+    const params = new URLSearchParams(window.location.search);
+    const width = parseInt(params.get('width') || '2000');
+    const height = parseInt(params.get('height') || '2000');
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    const imageData = ctx.createImageData(width, height);
+    const data = imageData.data;
+    
+    // Fill with random grayscale noise
+    for (let i = 0; i < data.length; i += 4) {
+      const value = Math.floor(Math.random() * 256);
+      data[i] = value;     // R
+      data[i + 1] = value; // G
+      data[i + 2] = value; // B
+      data[i + 3] = 255;   // A
+    }
+    
+    ctx.putImageData(imageData, 0, 0);
+    
+    // Notify parent if in iframe
+    if (window.parent !== window) {
+      window.parent.postMessage({type: 'pattern-loaded', pattern: 'noise'}, '*');
+    }
+  </script>
+</body>
+</html>
+

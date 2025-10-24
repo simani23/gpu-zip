@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Solid White Test Pattern</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #FFFFFF;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Notify parent if in iframe
+    if (window.parent !== window) {
+      window.parent.postMessage({type: 'pattern-loaded', pattern: 'solid-white'}, '*');
+    }
+  </script>
+</body>
+</html>
+
