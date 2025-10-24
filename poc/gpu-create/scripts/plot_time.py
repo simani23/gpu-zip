@@ -7,13 +7,7 @@ import os
 import argparse
 import sys
 
-
-# -------------------------------------------------------------------------------------------------------------------
-# Parsing Functions
-# -------------------------------------------------------------------------------------------------------------------
-
 def parse_file(fn):
-    """Parse timing file and return list of rendering times"""
     readings = []
     try:
         with open(fn) as f:
@@ -35,15 +29,7 @@ def parse_file(fn):
     
     return readings
 
-
-
-# -------------------------------------------------------------------------------------------------------------------
-# Plotting Functions
-# -------------------------------------------------------------------------------------------------------------------
-
 def plot(myDict, output_file="./plot/time.pdf"):	
-    """Plot histogram comparison of rendering times for different patterns"""
-    
     if not myDict or all(v is None for v in myDict.values()):
         print("Error: No valid data to plot")
         return
@@ -145,8 +131,6 @@ def plot(myDict, output_file="./plot/time.pdf"):
 
 
 
-
-
 def main():
     # Prepare clean output directory
     out_dir = 'plot'
@@ -162,7 +146,7 @@ Examples:
   python plot_time.py --black time_2_3000_0.0_100.txt --random time_2_3000_1.0_100.txt \\
                       --gradient time_2_3000_100.0_100.txt --skew time_2_3000_101.0_100.txt
   
-  # Compare just Black vs Random (legacy mode):
+  # Compare just Black vs Random:
   python plot_time.py time_2_3000_0.0_100.txt time_2_3000_1.0_100.txt
         '''
     )
@@ -175,7 +159,6 @@ Examples:
     parser.add_argument('-o', '--output', default='./plot/time.pdf', 
                        help='Output PDF file (default: ./plot/time.pdf)')
     
-    # Legacy positional arguments (for backward compatibility)
     parser.add_argument('file1', nargs='?', help='First file (Compressible/Black)')
     parser.add_argument('file2', nargs='?', help='Second file (Non-compressible/Random)')
 
@@ -184,7 +167,6 @@ Examples:
     # Build pattern dictionary
     pattern_dict = {}
     
-    # Check if using new named arguments
     if args.black or args.random or args.gradient or args.skew:
         if args.black:
             pattern_dict["Black"] = parse_file(args.black)
@@ -195,7 +177,6 @@ Examples:
         if args.skew:
             pattern_dict["Skew"] = parse_file(args.skew)
     
-    # Fall back to legacy mode (positional arguments)
     elif args.file1 and args.file2:
         pattern_dict["Compressible"] = parse_file(args.file1)
         pattern_dict["Non-compressible"] = parse_file(args.file2)
@@ -207,12 +188,10 @@ Examples:
         parser.print_help()
         sys.exit(1)
 
-    # Check if we have any valid data
     if not pattern_dict or all(v is None for v in pattern_dict.values()):
         print("Error: No valid timing data found")
         sys.exit(1)
 
-    # Generate plot
     plot(pattern_dict, args.output)
 
     
