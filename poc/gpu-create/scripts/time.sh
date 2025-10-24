@@ -58,7 +58,7 @@ echo "All tests completed. Analyzing results..."
 echo ""
 
 # Plot results for all patterns
-python plot_time.py \
+python3 ./plot_time.py \
     --black time_${type}_${size}_0.0_${iter}.txt \
     --random time_${type}_${size}_1.0_${iter}.txt \
     --gradient time_${type}_${size}_${gradient_val}.0_${iter}.txt \
