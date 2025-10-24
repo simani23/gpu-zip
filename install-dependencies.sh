@@ -44,7 +44,7 @@ echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🔧 Step 2: Installing build tools..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-sudo apt install -y build-essential make g++ gcc
+sudo apt install -y build-essential make g++ gcc vim
 
 # Install OpenGL/GLFW libraries
 echo ""
