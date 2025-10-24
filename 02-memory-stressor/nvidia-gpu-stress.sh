@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# NVIDIA GPU Memory Stress Utility
-# This script creates GPU memory bandwidth stress for NVIDIA dGPUs
+# NVIDIA dGPU Memory Bandwidth Stress Utility
 
 NUM_INSTANCES=${1:-4}
 DURATION=${2:-60}
