@@ -1,0 +1,41 @@
+{
+  "name": "gpu-security-research",
+  "version": "1.0.0",
+  "description": "GPU Compression Side-Channel Research - Dependency Management",
+  "scripts": {
+    "setup": "bash install-dependencies.sh",
+    "check": "bash check-system.sh",
+    "build": "npm run build:poc && npm run build:llc",
+    "build:poc": "cd poc/gpu-create && make",
+    "build:llc": "cd 03-llc && make",
+    "test:memory": "cd 02-memory-stressor && bash stressor.sh",
+    "test:llc": "cd 03-llc/scripts && bash llc-auto.sh",
+    "test:poc": "cd poc/gpu-create/scripts && bash time-all.sh",
+    "server:chrome": "cd 05-chrome-poc-local && python3 -m http.server 8000",
+    "clean": "npm run clean:poc && npm run clean:llc",
+    "clean:poc": "cd poc/gpu-create && make clean",
+    "clean:llc": "cd 03-llc && make clean"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/gpu-security-research"
+  },
+  "keywords": [
+    "gpu",
+    "security",
+    "side-channel",
+    "compression",
+    "research"
+  ],
+  "author": "",
+  "license": "SEE LICENSE FILE",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "os": [
+    "linux"
+  ],
+  "devDependencies": {},
+  "dependencies": {}
+}
+
