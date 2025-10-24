@@ -6,10 +6,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import os
-import numpy as np
 import glob
 import argparse
 from distutils.dir_util import remove_tree
+import subprocess
+import platform
 
 def parse_files(time, CPUFreq):
 
@@ -103,6 +104,48 @@ def plot_single(all_time_black, all_time_random, plot_name, name, unit):
 
     
 
+def get_cpu_frequency():
+    """Get CPU frequency in GHz, supporting both Intel and AMD processors"""
+    try:
+        info = cpuinfo.get_cpu_info()
+        # Try to get advertised frequency
+        if "hz_advertised" in info and info["hz_advertised"]:
+            freq_hz = info["hz_advertised"][0] if isinstance(info["hz_advertised"], list) else info["hz_advertised"]
+            return float(freq_hz / 1000000000)
+        elif "hz_actual" in info and info["hz_actual"]:
+            freq_hz = info["hz_actual"][0] if isinstance(info["hz_actual"], list) else info["hz_actual"]
+            return float(freq_hz / 1000000000)
+        else:
+            # Fallback: try to parse from brand string
+            brand = info.get("brand_raw", "")
+            import re
+            match = re.search(r'(\d+\.?\d*)\s*GHz', brand)
+            if match:
+                return float(match.group(1))
+    except Exception as e:
+        print(f"Warning: Could not determine CPU frequency automatically: {e}")
+    
+    # Default fallback
+    print("Using default CPU frequency of 3.0 GHz")
+    return 3.0
+
+def detect_gpu_type():
+    """Detect GPU type (Intel iGPU, AMD Radeon, or NVIDIA)"""
+    try:
+        if platform.system() == "Linux":
+            result = subprocess.run(['lspci'], capture_output=True, text=True)
+            output = result.stdout.lower()
+            if 'nvidia' in output and ('vga' in output or '3d' in output):
+                return "NVIDIA dGPU"
+            elif 'amd' in output or 'radeon' in output:
+                if 'vga' in output:
+                    return "AMD Radeon iGPU"
+            elif 'intel' in output and 'vga' in output:
+                return "Intel iGPU"
+    except:
+        pass
+    return "Unknown GPU"
+
 def main():
     # Prepare output directory
     try:
@@ -114,14 +157,29 @@ def main():
     except:
         pass
     
-    info = cpuinfo.get_cpu_info()
-
     # Parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('folder')
+    parser = argparse.ArgumentParser(description='Analyze GPU memory stressor results for Intel/AMD/NVIDIA GPUs')
+    parser.add_argument('folder', help='Directory containing timing data')
+    parser.add_argument('--cpu-freq', type=float, default=None, 
+                       help='CPU frequency in GHz (auto-detected if not specified)')
     args = parser.parse_args()
     in_dir = args.folder
-    CPUFreq = float(info["hz_advertised"][0]/1000000000)
+    
+    # Get CPU frequency
+    if args.cpu_freq:
+        CPUFreq = args.cpu_freq
+        print(f"Using specified CPU frequency: {CPUFreq} GHz")
+    else:
+        CPUFreq = get_cpu_frequency()
+        print(f"Auto-detected CPU frequency: {CPUFreq} GHz")
+    
+    # Detect GPU type
+    gpu_type = detect_gpu_type()
+    print(f"Detected GPU: {gpu_type}")
+    
+    info = cpuinfo.get_cpu_info()
+    cpu_brand = info.get("brand_raw", "Unknown CPU")
+    print(f"CPU: {cpu_brand}")
 
     # Read data
     time_files = sorted(glob.glob(in_dir + "/out*/time*"), reverse=True)
