@@ -58,14 +58,14 @@ echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🐍 Step 4: Installing Python and scientific libraries..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-sudo apt install -y python3 python3-pip python3-numpy python3-matplotlib python3-dev
+sudo apt install -y python3 python3-pip python3-numpy python3-matplotlib python3-dev python3-cpuinfo
 
 # Install additional Python packages via pip (for more recent versions)
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 Step 5: Installing additional Python packages..."
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-pip3 install --user py-cpuinfo || echo "⚠️  Warning: py-cpuinfo installation failed (optional)"
+#echo ""
+#echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+#echo "📊 Step 5: Installing additional Python packages..."
+#echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+#pip3 install --user py-cpuinfo || echo "⚠️  Warning: py-cpuinfo installation failed (optional)"
 
 # Install system utilities
 echo ""
