@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Convenience script to test all shader patterns with various configurations
 # Usage: ./time-all.sh [iterations] [size] [type] [samples]
 
 set -e
@@ -11,10 +10,7 @@ SIZE=${2:-3000}
 TYPE=${3:-2}
 SAMPLES=${4:-500}
 
-echo "==================================================================="
 echo "       GPU Shader Pattern Comprehensive Timing Test"
-echo "==================================================================="
-echo ""
 echo "Configuration:"
 echo "  Texture Size:      ${SIZE}x${SIZE}"
 echo "  Iterations:        ${ITER}"
@@ -41,8 +37,6 @@ echo "  Black:    0.0 (highly compressible)"
 echo "  Random:   1.0 (non-compressible)"
 echo "  Gradient: ${GRADIENT}.0 (divides ${SIZE})"
 echo "  Skew:     ${SKEW}.0 (doesn't divide ${SIZE})"
-echo ""
-echo "==================================================================="
 echo ""
 
 # Array to track generated files
@@ -81,7 +75,6 @@ run_test "Random"   "1.0"           "2"
 run_test "Gradient" "${GRADIENT}.0" "3"
 run_test "Skew"     "${SKEW}.0"     "4"
 
-echo "==================================================================="
 echo "All tests completed!"
 echo ""
 echo "Generated files:"
@@ -101,10 +94,7 @@ if [ ${#FILES_GENERATED[@]} -eq 4 ]; then
         --gradient "time_${TYPE}_${SIZE}_${GRADIENT}.0_${ITER}.txt" \
         --skew "time_${TYPE}_${SIZE}_${SKEW}.0_${ITER}.txt"
     
-    echo ""
-    echo "==================================================================="
     echo "✓ Complete! Results saved in ./plot/time.pdf"
-    echo "==================================================================="
 else
     echo "⚠ Warning: Not all tests completed successfully (${#FILES_GENERATED[@]}/4)"
     echo "Plotting available data..."
