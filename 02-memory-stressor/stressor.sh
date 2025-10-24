@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-############ GPU Memory Contention Test ###############
 # Supports: Intel iGPU, AMD Radeon iGPU, NVIDIA GeForce dGPU
 
 # Detect GPU type
