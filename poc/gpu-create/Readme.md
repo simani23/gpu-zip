@@ -44,21 +44,82 @@ For example, the command:
 
 renders a `Black` texture of size `3000x3000` to the screen for `10` iterations during each frame update, and collects the rendering time of `500` frame updates.
 
-## Testing script
+## Testing scripts
 
-On most machines we tested, `Black` (`color` = `0`) is always compressible, and `Random` (`color` = `1`) is always non-compressible.
-We provide a script that logs 500 *Rendering time per frame* data points for `Black` and `Random` textures with `iterations` ,`SCR_WIDTH`, and `read_write` as inputs.
-To run the script:
+### Enhanced Testing (All Shader Patterns)
+
+We provide enhanced scripts to test **all four shader patterns**: `Black`, `Random`, `Gradient`, and `Skew`.
+
+#### Quick Start - Test All Patterns:
 
 ```bash
 cd scripts
-./time.sh iterations SCR_WIDTH read_write
+chmod +x time.sh time-all.sh
+./time-all.sh [iterations] [SCR_WIDTH] [read_write] [samples]
 ```
 
-By default, `print_time` = `500`.
+**Default values:** `iterations=100`, `SCR_WIDTH=3000`, `read_write=2`, `samples=500`
 
-Above `./time.sh` uses `plot_time.py` to parse the two logging files of `Black` and `Random` textures.
-It prints the average, std, min and max *Rendering time per frame* (CPU cycles) of each pattern.
-It plots the distribution of the two *Rendering time per frame* traces in `plot` folder.
+**Example:**
+```bash
+./time-all.sh 100 3000 2 500
+```
 
-You can change the script to test the other patterns or the amount of data that the script logs.
+This will:
+1. Test all 4 shader patterns (Black, Random, Gradient, Skew)
+2. Collect timing data for each pattern
+3. Generate statistical analysis
+4. Create a comparison plot in `./plot/time.pdf`
+
+#### Flexible Testing Script:
+
+```bash
+./time.sh [iterations] [SCR_WIDTH] [read_write] [samples]
+```
+
+This script tests all 4 patterns and automatically:
+- Calculates appropriate Gradient/Skew values based on `SCR_WIDTH`
+- Generates timing files for each pattern
+- Creates comparison plots with color-coded histograms
+
+### Analysis Script
+
+The `plot_time.py` script supports multiple modes:
+
+#### All Patterns Mode (New):
+```bash
+python plot_time.py --black file1.txt --random file2.txt --gradient file3.txt --skew file4.txt
+```
+
+#### Legacy Mode (Backward Compatible):
+```bash
+python plot_time.py compressible.txt non-compressible.txt
+```
+
+#### Custom Output:
+```bash
+python plot_time.py --black file1.txt --random file2.txt -o custom_output.pdf
+```
+
+### Shader Pattern Details
+
+On most machines tested:
+- **Black** (`color=0.0`): Highly compressible (all pixels same color)
+- **Random** (`color=1.0`): Non-compressible (random pixel values)
+- **Gradient** (`color` divides `SCR_WIDTH`): Moderately compressible (smooth gradients)
+- **Skew** (`color` doesn't divide `SCR_WIDTH`): Low compressibility (irregular patterns)
+
+### Output
+
+The scripts generate:
+- **Timing files**: `time_${type}_${size}_${color}_${iterations}.txt`
+- **Statistical summary**: Mean, std dev, min, max rendering times (CPU cycles)
+- **Histogram plot**: `./plot/time.pdf` showing distribution comparison
+
+### Customization
+
+You can modify the scripts to:
+- Test different pattern combinations
+- Adjust sample counts
+- Change plot colors and styles
+- Test custom color values
