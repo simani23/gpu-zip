@@ -95,7 +95,7 @@ if [ ${#FILES_GENERATED[@]} -eq 4 ]; then
     echo "Analyzing results and generating plots..."
     echo ""
     
-    python plot_time.py \
+    python3 ./plot_time.py \
         --black "time_${TYPE}_${SIZE}_0.0_${ITER}.txt" \
         --random "time_${TYPE}_${SIZE}_1.0_${ITER}.txt" \
         --gradient "time_${TYPE}_${SIZE}_${GRADIENT}.0_${ITER}.txt" \
