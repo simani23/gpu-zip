@@ -32,11 +32,13 @@ http://localhost:8000/chrome-pp/chrome.html
 http://localhost:8000/chrome-cache/chrome.html
 ```
 - Best for: Intel iGPU, AMD Radeon iGPU only
-- Not recommended for: NVIDIA dGPU (separate LLC)
-- Method: CPU cache contention measurement
+-  NOT compatible with: NVIDIA dGPU (separate LLC)
+- Method: CPU cache contention measurement (Prime+Probe)
+- smallWarning: **Note**: More experimental, smaller timing differences than chrome-pp
 
 ### 3. Basic Test
 
+**For chrome-pp (Rendering Time):**
 1. Keep default settings
 2. Enable "Test Mode" checkbox
 3. Click "Run PoC"
@@ -45,6 +47,15 @@ http://localhost:8000/chrome-cache/chrome.html
    - **Good**: White time > Black time (ratio > 1.5)
    - **Excellent**: Ratio > 2.0
    - **Problem**: Ratio < 1.2 (see troubleshooting)
+
+**For chrome-cache (LLC Walk Time):**
+1. Keep default settings (Test Mode enabled by default)
+2. Click "Run PoC"
+3. Wait for calibration (may take longer than chrome-pp)
+4. Check results:
+   - **Good**: Ratio > 1.1
+   - **Excellent**: Ratio > 1.5
+   - **Problem**: Ratio < 1.05 (LLC method may not work on your system)
 
 ### 4. Troubleshooting
 
@@ -100,7 +111,7 @@ Num Workers: 8
 **Console Output:**
 ```
 [Calibration] Black: 12.34ms, White: 25.67ms, Ratio: 2.081
-✓ Excellent timing separation! Ready for attack.
+Done: Excellent timing separation! Ready for attack.
 ```
 
 **Interpretation:**
@@ -129,10 +140,20 @@ Access directly: `http://localhost:8000/test-patterns/[pattern].html`
 
 ### Important Notes
 
-- ⚠️ This is research code for educational purposes
+- smallWarning: This is research code for educational purposes
 - Do not use on actual websites without permission
 - Works completely offline (no external dependencies)
 - Self-contained and customizable
+- **chrome-cache now fully implemented** (as of latest update)
+- For NVIDIA dGPU users: chrome-cache will not work, use chrome-pp only
+
+### Platform Compatibility Summary
+
+| GPU Type | chrome-pp | chrome-cache |
+|----------|-----------|--------------|
+| Intel iGPU | GDone: Excellent | GDone: Good |
+| AMD Radeon iGPU | GDone: Good | GDone: Good |
+| NVIDIA dGPU | smallWarning: Limited |  Not Compatible |
 
 For detailed documentation, see README.md
 

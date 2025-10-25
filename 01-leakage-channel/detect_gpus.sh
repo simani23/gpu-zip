@@ -11,7 +11,7 @@ echo ""
 # Check for AMD GPU
 echo "Checking for AMD GPU..."
 if ls /sys/class/hwmon/*/name 2>/dev/null | xargs grep -l "amdgpu" > /dev/null 2>&1; then
-    echo "✓ AMD GPU detected:"
+    echo "Done: AMD GPU detected:"
     AMD_HWMON=$(ls /sys/class/hwmon/*/name | xargs grep -l "amdgpu" | head -1 | xargs dirname)
     if [ -f "$AMD_HWMON/freq1_input" ]; then
         FREQ=$(cat "$AMD_HWMON/freq1_input")
@@ -33,7 +33,7 @@ echo ""
 echo "Checking for NVIDIA GPU..."
 if command -v nvidia-smi &> /dev/null; then
     if nvidia-smi -L > /dev/null 2>&1; then
-        echo "✓ NVIDIA GPU detected:"
+        echo "Done: NVIDIA GPU detected:"
         nvidia-smi -L | sed 's/^/  - /'
         echo ""
         echo "  NVIDIA GPU Status:"
@@ -52,7 +52,7 @@ echo ""
 # Check MSR module (required for AMD IMC monitoring)
 echo "Checking MSR module..."
 if lsmod | grep -q "^msr"; then
-    echo "✓ MSR module loaded"
+    echo "Done: MSR module loaded"
 else
     echo "⚠ MSR module not loaded"
     echo "  Run: sudo modprobe msr"
@@ -76,7 +76,7 @@ if command -v nvidia-smi &> /dev/null && nvidia-smi -L > /dev/null 2>&1; then
 fi
 
 if [ $AMD_OK -eq 1 ] && [ $NVIDIA_OK -eq 1 ]; then
-    echo "✓ System is ready for AMD + NVIDIA monitoring"
+    echo "Done: System is ready for AMD + NVIDIA monitoring"
     echo ""
     echo "Build with: make CFLAGS+=-DAMD"
     echo "Then run: cd scripts/exp1 && ./exp1.sh"

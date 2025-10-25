@@ -47,11 +47,11 @@ cd 03-llc && make && cd ..
 ```
 
 This script installs:
-- ✅ Build tools (gcc, g++, make)
-- ✅ OpenGL/GLFW libraries
-- ✅ Python 3 + NumPy + Matplotlib
-- ✅ System utilities (stress-ng, bc, lspci)
-- ✅ MSR tools (for hardware monitoring)
+- GDone: Build tools (gcc, g++, make)
+- GDone: OpenGL/GLFW libraries
+- GDone: Python 3 + NumPy + Matplotlib
+- GDone: System utilities (stress-ng, bc, lspci)
+- GDone: MSR tools (for hardware monitoring)
 
 ### Method 2: Manual Installation
 
@@ -109,17 +109,17 @@ After installation, verify everything is set up correctly:
 
 Expected output:
 ```
-✅ GCC compiler
-✅ G++ compiler
-✅ Make
-✅ GLFW library
-✅ OpenGL library
-✅ Python 3
-✅ Python module: numpy
-✅ Python module: matplotlib
-✅ lspci (PCI utilities)
+GDone: GCC compiler
+GDone: G++ compiler
+GDone: Make
+GDone: GLFW library
+GDone: OpenGL library
+GDone: Python 3
+GDone: Python module: numpy
+GDone: Python module: matplotlib
+GDone: lspci (PCI utilities)
 ...
-✅ System is ready for GPU security research!
+GDone: System is ready for GPU security research!
 ```
 
 ## Building Binaries

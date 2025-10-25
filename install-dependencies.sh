@@ -14,7 +14,7 @@ echo ""
 
 # Check if running as root
 if [ "$EUID" -eq 0 ]; then 
-    echo "⚠️  Warning: Running as root. This is not recommended."
+    echo "smallWarning:  Warning: Running as root. This is not recommended."
     echo "Please run as a regular user. The script will use sudo when needed."
     read -p "Continue anyway? (y/N) " -n 1 -r
     echo
@@ -25,7 +25,7 @@ fi
 
 # Check if running Ubuntu/Debian
 if [ ! -f /etc/os-release ]; then
-    echo "❌ Error: Cannot detect OS. This script is for Ubuntu/Debian."
+    echo " Error: Cannot detect OS. This script is for Ubuntu/Debian."
     exit 1
 fi
 
@@ -65,7 +65,7 @@ sudo apt install -y python3 python3-pip python3-numpy python3-matplotlib python3
 #echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 #echo "📊 Step 5: Installing additional Python packages..."
 #echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-#pip3 install --user py-cpuinfo || echo "⚠️  Warning: py-cpuinfo installation failed (optional)"
+#pip3 install --user py-cpuinfo || echo "smallWarning:  Warning: py-cpuinfo installation failed (optional)"
 
 # Install system utilities
 echo ""
@@ -85,9 +85,9 @@ sudo apt install -y msr-tools
 echo ""
 echo "Loading MSR kernel module..."
 if sudo modprobe msr; then
-    echo "✅ MSR module loaded successfully"
+    echo "GDone: MSR module loaded successfully"
 else
-    echo "⚠️  Warning: Could not load MSR module. May need to enable in BIOS or install linux-modules-extra."
+    echo "smallWarning:  Warning: Could not load MSR module. May need to enable in BIOS or install linux-modules-extra."
 fi
 
 # Install git (if not present)
@@ -102,21 +102,21 @@ echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🔍 Step 9: Installing optional tools..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-sudo apt install -y htop iotop cpufrequtils linux-tools-common linux-tools-generic || echo "⚠️  Some optional tools not available"
+sudo apt install -y htop iotop cpufrequtils linux-tools-common linux-tools-generic || echo "smallWarning:  Some optional tools not available"
 
 echo ""
 echo "=========================================="
-echo "✅ Installation Complete!"
+echo "GDone: Installation Complete!"
 echo "=========================================="
 echo ""
 
 # Summary
 echo "📋 Installed Components:"
-echo "  ✅ Build tools (gcc, g++, make)"
-echo "  ✅ OpenGL/GLFW libraries"
-echo "  ✅ Python 3 + NumPy + Matplotlib"
-echo "  ✅ System utilities (stress-ng, bc, pciutils)"
-echo "  ✅ MSR tools"
+echo "  GDone: Build tools (gcc, g++, make)"
+echo "  GDone: OpenGL/GLFW libraries"
+echo "  GDone: Python 3 + NumPy + Matplotlib"
+echo "  GDone: System utilities (stress-ng, bc, pciutils)"
+echo "  GDone: MSR tools"
 echo ""
 
 # Check GPU
@@ -160,7 +160,7 @@ echo "   cd 05-chrome-poc-local && ./start-server.sh"
 echo "   Open: http://localhost:8000/chrome-pp/chrome.html"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "⚠️  Important Notes:"
+echo "smallWarning:  Important Notes:"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "• For MSR access, you may need to:"

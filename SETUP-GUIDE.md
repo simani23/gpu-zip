@@ -109,22 +109,22 @@ cd ../05-chrome-poc-local && ./start-server.sh
 After running `./check-system.sh`, you should see:
 
 ```
-✅ GCC compiler
-✅ G++ compiler  
-✅ Make
-✅ GLFW library
-✅ OpenGL library
-✅ GLU library
-✅ Python 3
-✅ Python module: numpy
-✅ Python module: matplotlib
-✅ Python module: cpuinfo
-✅ lspci (PCI utilities)
-✅ bc (calculator)
-✅ stress-ng
-✅ rdmsr (MSR tools)
-✅ wrmsr (MSR tools)
-✅ MSR module is loaded
+GDone: GCC compiler
+GDone: G++ compiler  
+GDone: Make
+GDone: GLFW library
+GDone: OpenGL library
+GDone: GLU library
+GDone: Python 3
+GDone: Python module: numpy
+GDone: Python module: matplotlib
+GDone: Python module: cpuinfo
+GDone: lspci (PCI utilities)
+GDone: bc (calculator)
+GDone: stress-ng
+GDone: rdmsr (MSR tools)
+GDone: wrmsr (MSR tools)
+GDone: MSR module is loaded
 ```
 
 **GPU Detection:**
@@ -188,7 +188,7 @@ cd poc/gpu-create && make && cd ../..
 cd 03-llc && make && cd ..
 ```
 
-## ⚠️ Common Issues
+## smallWarning: Common Issues
 
 ### MSR Module Won't Load
 
@@ -338,15 +338,15 @@ cpupower frequency-info
 sudo cpupower frequency-set -g powersave
 ```
 
-## ✅ Success Criteria
+## GDone: Success Criteria
 
 Your system is ready when:
 
-- ✅ `./check-system.sh` passes all checks
-- ✅ GPU is detected correctly
-- ✅ Binaries build without errors
-- ✅ Simple test runs successfully
-- ✅ Python can import numpy and matplotlib
+- GDone: `./check-system.sh` passes all checks
+- GDone: GPU is detected correctly
+- GDone: Binaries build without errors
+- GDone: Simple test runs successfully
+- GDone: Python can import numpy and matplotlib
 
 ## 🎯 Next Steps
 

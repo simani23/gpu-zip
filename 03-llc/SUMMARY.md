@@ -67,31 +67,31 @@ Successfully updated the LLC (Last Level Cache) walk time test suite to support 
 
 | Platform | GPU Type | Shared LLC? | Recommended Script | Expected Results |
 |----------|----------|-------------|--------------------|------------------|
-| **Intel iGPU** | Integrated | ✓ Yes | llc-auto.sh or llc.sh | Clear compression patterns |
-| **AMD Ryzen APU** | Radeon iGPU | ✓ Yes | llc-auto.sh | Clear compression patterns |
+| **Intel iGPU** | Integrated | Done: Yes | llc-auto.sh or llc.sh | Clear compression patterns |
+| **AMD Ryzen APU** | Radeon iGPU | Done: Yes | llc-auto.sh | Clear compression patterns |
 | **NVIDIA dGPU** | Discrete | ✗ No | Alternative tests recommended | Minimal/no patterns |
 | **Intel + NVIDIA** | Hybrid | Partial | llc-auto.sh (if using iGPU) | Varies by active GPU |
 
 ## Key Features
 
 ### Auto-Detection System
-✅ Detects CPU vendor and model
-✅ Reads LLC size from sysfs
-✅ Calculates cache parameters automatically
-✅ Adapts test range to cache size
-✅ Provides detailed detection output
+GDone: Detects CPU vendor and model
+GDone: Reads LLC size from sysfs
+GDone: Calculates cache parameters automatically
+GDone: Adapts test range to cache size
+GDone: Provides detailed detection output
 
 ### Backward Compatibility
-✅ Original binaries unchanged
-✅ Original scripts work exactly as before
-✅ Paper results reproducible
-✅ New features are additive only
+GDone: Original binaries unchanged
+GDone: Original scripts work exactly as before
+GDone: Paper results reproducible
+GDone: New features are additive only
 
 ### Platform Awareness
-✅ Explains iGPU vs dGPU differences
-✅ Provides appropriate guidance
-✅ Sets correct expectations
-✅ Suggests alternative tests when needed
+GDone: Explains iGPU vs dGPU differences
+GDone: Provides appropriate guidance
+GDone: Sets correct expectations
+GDone: Suggests alternative tests when needed
 
 ## Quick Start Guide
 
@@ -261,12 +261,12 @@ Potential enhancements:
 ## Conclusion
 
 The LLC walk time test suite now:
-- ✅ Supports AMD Ryzen with Radeon iGPU
-- ✅ Adapts to various Intel iGPU models
-- ✅ Handles NVIDIA dGPU with clear guidance
-- ✅ Maintains backward compatibility
-- ✅ Provides comprehensive documentation
-- ✅ Includes validation tools
+- GDone: Supports AMD Ryzen with Radeon iGPU
+- GDone: Adapts to various Intel iGPU models
+- GDone: Handles NVIDIA dGPU with clear guidance
+- GDone: Maintains backward compatibility
+- GDone: Provides comprehensive documentation
+- GDone: Includes validation tools
 
 All changes preserve scientific rigor while extending applicability to modern hardware configurations.
 

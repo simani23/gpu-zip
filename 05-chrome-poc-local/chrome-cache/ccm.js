@@ -1,4 +1,4 @@
-// Simplified Cache Contention Measurement (CCM)
+// Simplified Cache Contention Measurement (CCM) Worker
 // Based on Prime+Probe technique for LLC measurement
 
 class CacheContentionMeasurement {
@@ -21,10 +21,10 @@ class CacheContentionMeasurement {
       }
       
       this.initialized = true;
-      console.log('[CCM] Initialized with cache size:', this.cacheSize);
+      console.log('[CCM Worker] Initialized with cache size:', this.cacheSize);
       return true;
     } catch (e) {
-      console.error('[CCM] Initialization failed:', e);
+      console.error('[CCM Worker] Initialization failed:', e);
       return false;
     }
   }
@@ -48,7 +48,7 @@ class CacheContentionMeasurement {
   // Measure LLC walk time
   measureOnce() {
     if (!this.initialized) {
-      console.warn('[CCM] Not initialized');
+      console.warn('[CCM Worker] Not initialized');
       return 0;
     }
 
@@ -86,7 +86,22 @@ class CacheContentionMeasurement {
   }
 }
 
-// Export for use in other scripts
+// Web Worker implementation
+let ccm = null;
+
+self.onmessage = function(e) {
+  // Initialize on first message or explicit init command
+  if (!ccm) {
+    ccm = new CacheContentionMeasurement();
+    ccm.initialize();
+  }
+  
+  // Perform measurement and send back result
+  const measurement = ccm.measureOnce();
+  self.postMessage(measurement);
+};
+
+// Export for use in other scripts (non-worker context)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = CacheContentionMeasurement;
 }

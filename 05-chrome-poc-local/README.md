@@ -5,18 +5,18 @@ This directory contains **fully self-contained, local-only** versions of the Chr
 ## What's Different from `04-chrome-poc/`
 
 ### Original (04-chrome-poc/)
-- ❌ Depends on external websites (UW, Wikipedia, etc.)
-- ❌ Requires internet connection
-- ❌ External sites may change or go offline
-- ❌ More complex CSP configuration
+-  Depends on external websites (UW, Wikipedia, etc.)
+-  Requires internet connection
+-  External sites may change or go offline
+-  More complex CSP configuration
 
 ### This Version (05-chrome-poc-local/)
-- ✅ Completely self-contained
-- ✅ Works 100% offline
-- ✅ Local test patterns included
-- ✅ Simpler setup and testing
-- ✅ Better for learning and experimentation
-- ✅ Customizable test patterns
+- GDone: Completely self-contained
+- GDone: Works 100% offline
+- GDone: Local test patterns included
+- GDone: Simpler setup and testing
+- GDone: Better for learning and experimentation
+- GDone: Customizable test patterns
 
 ## Directory Structure
 
@@ -64,18 +64,18 @@ This directory contains **fully self-contained, local-only** versions of the Chr
 
 ## GPU Platform Guidance
 
-### ✅ Intel iGPU (Integrated Graphics)
+### GDone: Intel iGPU (Integrated Graphics)
 - **Both PoCs**: Should work well
 - **Recommended**: Try both chrome-pp and chrome-cache
 - **Reason**: Shares system memory and LLC with CPU
 
-### ✅ AMD Radeon iGPU (APU)
+### GDone: AMD Radeon iGPU (APU)
 - **Both PoCs**: Should work well
 - **Recommended**: Try chrome-pp first, then chrome-cache
 - **Reason**: Shares L3 cache with CPU
 - **Note**: May need to adjust parameters (larger cache = different thresholds)
 
-### ⚠️ NVIDIA GeForce dGPU
+### smallWarning: NVIDIA GeForce dGPU
 - **chrome-pp**: May work (measures GPU rendering time)
 - **chrome-cache**: Limited effectiveness (separate memory/cache)
 - **Recommended**: Focus on chrome-pp only
@@ -218,10 +218,10 @@ Both PoCs have similar configuration options:
 ### 2. Optimize Parameters
 
 If difference is small or inconsistent:
-- ✅ **Increase Div Size** (e.g., 2000 → 4000)
-- ✅ **Increase Layer count** (e.g., 10 → 20)
-- ✅ **Enable Stress mode** (Stress = 1)
-- ✅ **Adjust number of workers** (e.g., 4-8)
+- GDone: **Increase Div Size** (e.g., 2000 → 4000)
+- GDone: **Increase Layer count** (e.g., 10 → 20)
+- GDone: **Enable Stress mode** (Stress = 1)
+- GDone: **Adjust number of workers** (e.g., 4-8)
 
 ### 3. Full Attack Test
 
@@ -281,7 +281,7 @@ Workers: 8-12
 ```
 
 **Expected Behavior:**
-- ⚠️ Timing differences may be very small or absent
+- smallWarning: Timing differences may be very small or absent
 - **chrome-cache** likely won't work (no shared LLC)
 - **chrome-pp** might show minimal effect
 - Consider using `poc/gpu-create` tests instead
@@ -385,7 +385,7 @@ The SVG filter is defined in the embed HTML files. You can experiment with:
 
 ## Security and Ethics
 
-⚠️ **This is research code for educational purposes**
+smallWarning: **This is research code for educational purposes**
 
 - These PoCs demonstrate a **side-channel vulnerability**
 - Do NOT use on real websites without permission

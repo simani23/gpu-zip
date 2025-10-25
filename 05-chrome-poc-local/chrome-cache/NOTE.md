@@ -1,24 +1,18 @@
 # Chrome-Cache PoC Note
 
-## Status: Simplified Implementation
+## Status: GDone: Complete Implementation
 
-This chrome-cache directory contains the **basic structure** for the LLC walk time-based PoC, but requires additional implementation to be fully functional.
+This chrome-cache directory contains the **complete** LLC walk time-based PoC with full calibration and measurement capabilities.
 
 ### What's Included:
 
-✅ **Test patterns** (shared from test-patterns/)
-✅ **Pixel embed HTML files** (copied from chrome-pp)
-✅ **Cache contention measurement utility** (ccm.js - simplified)
-✅ **Shared utilities** (subframe.js, worker_big.js)
-
-### What Needs Implementation:
-
-The full chrome-cache PoC requires:
-
-1. **Complete HTML interface** (chrome.html) - Similar to chrome-pp but adapted for LLC metrics
-2. **Main PoC logic** (chrome.js) - LLC measurement instead of rendering time
-3. **Integration with ccm.js** - Proper LLC walk time measurement
-4. **Calibration for LLC** - Different thresholds than rendering time
+GDone: **Complete HTML interface** (chrome.html) - Full UI for LLC-based testing
+GDone: **Main PoC logic** (chrome.js) - LLC measurement via cache contention
+GDone: **Cache contention measurement** (ccm.js) - Web Worker for Prime+Probe
+GDone: **Test patterns** (pixel-embed-*.html) - Black, white, and checkerboard targets
+GDone: **Shared utilities** (subframe.js from ../shared/)
+GDone: **Platform detection** - Warns if GPU is incompatible
+GDone: **Calibration system** - Measures black vs white LLC walk time
 
 ### Why Chrome-Cache is More Complex:
 
@@ -28,63 +22,50 @@ The full chrome-cache PoC requires:
 - **Not applicable to NVIDIA dGPU** (separate cache)
 - More sensitive to system state and background processes
 
+### How to Use:
+
+1. **Start the local server** (from parent directory):
+   ```bash
+   ./start-server.sh    # Linux/Mac
+   start-server.bat     # Windows
+   ```
+
+2. **Open in browser**:
+   ```
+   http://localhost:8000/chrome-cache/chrome.html
+   ```
+
+3. **Configure and Run**:
+   - Keep default settings or adjust based on your system
+   - Enable "Test mode" (checked by default)
+   - Click "Run PoC"
+   - Wait for calibration to complete
+
+4. **Interpret Results**:
+   - **Black LLC Time**: Time to walk cache with compressible (black) data
+   - **White LLC Time**: Time to walk cache with filtered (less compressible) white data
+   - **Ratio**: White/Black ratio (higher = better separation)
+   - **Good**: Ratio > 1.1
+   - **Excellent**: Ratio > 1.5
+
 ### Recommendation:
 
-For **AMD Radeon iGPU** and **NVIDIA GeForce dGPU** testing, we recommend:
+**For most users, start with chrome-pp** (rendering time version):
+- More straightforward and reliable
+- Works across different GPU types
+- Larger timing differences
+- Easier to interpret results
 
-1. **Start with chrome-pp** (rendering time version)
-   - More straightforward
-   - Works across different GPU types
-   - Easier to interpret results
+**Use chrome-cache** only if:
+- GDone: You have Intel or AMD iGPU (shared cache architecture)
+- GDone: You want to explore LLC-based side-channel detection
+- GDone: chrome-pp successfully demonstrated timing differences
 
-2. **Use chrome-cache** only if:
-   - You have Intel or AMD iGPU (not dGPU)
-   - You want to explore LLC-based detection
-   - chrome-pp shows clear timing differences
-
-3. **For NVIDIA dGPU specifically**:
-   - **Skip chrome-cache entirely** (won't work - separate LLC)
-   - Use chrome-pp for browser-based testing
-   - Use `../03-llc/` for direct LLC testing (CPU cache only)
-   - Use `../poc/gpu-create/` for direct GPU timing
-
-### To Create Full chrome-cache PoC:
-
-If you need the complete chrome-cache implementation:
-
-1. **Copy chrome-pp/chrome.html to chrome-cache/** and modify:
-   - Change title to "LLC Walk Time"
-   - Add LLC-specific UI elements
-   - Remove rendering time specific elements
-
-2. **Create chrome-cache/chrome.js** based on chrome-pp/chrome.js:
-   - Replace `measureRenderingTime()` with LLC measurement
-   - Use `ccm.js` for cache probing
-   - Adapt calibration for LLC walk time (microseconds vs milliseconds)
-
-3. **Test and calibrate**:
-   - LLC walk time is typically in microseconds
-   - Expect smaller absolute differences than rendering time
-   - May need more samples for statistical significance
-
-### Alternative: Use Original
-
-If you need a complete, production-ready chrome-cache PoC:
-- See `../04-chrome-poc/chrome-cache/` (original version)
-- Note: Requires external website dependencies
-- More complex but fully implemented
-
-### For This Self-Contained Version:
-
-**chrome-pp is the primary PoC** and should work well for:
-- Intel iGPU ✓
-- AMD Radeon iGPU ✓  
-- NVIDIA dGPU (limited) ⚠️
-
-**chrome-cache is optional** and only recommended for:
-- Intel iGPU ✓
-- AMD Radeon iGPU ✓
-- NVIDIA dGPU ✗ (not applicable)
+**For NVIDIA dGPU specifically**:
+-  **Do NOT use chrome-cache** (dedicated GPU has separate cache)
+- GDone: Use `chrome-pp` for browser-based testing
+- GDone: Use `../03-llc/` for direct LLC testing (CPU cache only)
+- GDone: Use `../poc/gpu-create/` for direct GPU timing
 
 ## Quick Decision Guide:
 

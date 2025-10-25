@@ -26,14 +26,14 @@ A **fully self-contained, offline-capable** version of the GPU compression side-
 │   └── worker_big.js             # Memory stress worker
 │
 ├── chrome-pp/                     # Rendering time PoC (PRIMARY)
-│   ├── chrome.html               # ✅ Main interface
-│   ├── chrome.js                 # ✅ Complete implementation
+│   ├── chrome.html               # GDone: Main interface
+│   ├── chrome.js                 # GDone: Complete implementation
 │   ├── pixel-embed-checkerboard.html
 │   ├── pixel-embed-black.html
 │   └── pixel-embed-white.html
 │
 └── chrome-cache/                  # LLC walk time PoC (OPTIONAL)
-    ├── NOTE.md                    # ⚠️ Read this first
+    ├── NOTE.md                    # smallWarning: Read this first
     ├── ccm.js                     # Cache measurement utility
     ├── pixel-embed-checkerboard.html
     ├── pixel-embed-black.html
@@ -59,14 +59,14 @@ A **fully self-contained, offline-capable** version of the GPU compression side-
 - subframe.js - Frame communication
 - worker_big.js - Memory stress
 
-### Chrome-PP PoC (5 files) ✅ COMPLETE
+### Chrome-PP PoC (5 files) GDone: COMPLETE
 - chrome.html - Main interface
 - chrome.js - Full implementation
 - pixel-embed-checkerboard.html
 - pixel-embed-black.html
 - pixel-embed-white.html
 
-### Chrome-Cache PoC (6 files) ⚠️ PARTIAL
+### Chrome-Cache PoC (6 files) smallWarning: PARTIAL
 - NOTE.md - Implementation status
 - ccm.js - Simplified cache measurement
 - 3x pixel-embed HTML files (copied)
@@ -90,7 +90,7 @@ A **fully self-contained, offline-capable** version of the GPU compression side-
 
 ## What Works Right Now
 
-### ✅ Fully Functional:
+### GDone: Fully Functional:
 
 1. **All Test Patterns**
    - Checkerboard, Black, White, Gradient, Noise
@@ -111,7 +111,7 @@ A **fully self-contained, offline-capable** version of the GPU compression side-
    - Quick-start guide
    - Comprehensive documentation
 
-### ⚠️ Simplified/Partial:
+### smallWarning: Simplified/Partial:
 
 1. **Chrome-Cache PoC**
    - Basic structure only
@@ -129,9 +129,9 @@ A **fully self-contained, offline-capable** version of the GPU compression side-
 
 | GPU Type | Chrome-PP | Chrome-Cache | Recommended |
 |----------|-----------|--------------|-------------|
-| **Intel iGPU** | ✅ Full support | ⚠️ Partial (use original if needed) | chrome-pp |
-| **AMD Radeon iGPU** | ✅ Full support | ⚠️ Partial (use original if needed) | chrome-pp |
-| **NVIDIA dGPU** | ⚠️ Limited (may work) | ❌ Not applicable | chrome-pp only |
+| **Intel iGPU** | GDone: Full support | smallWarning: Partial (use original if needed) | chrome-pp |
+| **AMD Radeon iGPU** | GDone: Full support | smallWarning: Partial (use original if needed) | chrome-pp |
+| **NVIDIA dGPU** | smallWarning: Limited (may work) |  Not applicable | chrome-pp only |
 
 ## Usage Workflow
 
@@ -212,20 +212,20 @@ async function measureRenderingTime(iframe, duration, sampleCount) {
 ## Known Limitations
 
 ### Chrome-Cache:
-- ❌ Not fully implemented (use chrome-pp or original version)
-- ❌ Only works on iGPU (Intel/AMD)
-- ❌ More complex to calibrate
+-  Not fully implemented (use chrome-pp or original version)
+-  Only works on iGPU (Intel/AMD)
+-  More complex to calibrate
 
 ### Chrome-PP on NVIDIA dGPU:
-- ⚠️ May show small or no timing differences
-- ⚠️ Dedicated VRAM reduces observable effects
-- ✅ Still worth trying as a learning exercise
+- smallWarning: May show small or no timing differences
+- smallWarning: Dedicated VRAM reduces observable effects
+- GDone: Still worth trying as a learning exercise
 
 ### General:
-- ⚠️ Simplified version (not production-grade)
-- ⚠️ Full pixel stealing not implemented (calibration only)
-- ✅ Sufficient for demonstrating side-channel
-- ✅ Educational purposes
+- smallWarning: Simplified version (not production-grade)
+- smallWarning: Full pixel stealing not implemented (calibration only)
+- GDone: Sufficient for demonstrating side-channel
+- GDone: Educational purposes
 
 ## Success Criteria
 
@@ -245,7 +245,7 @@ async function measureRenderingTime(iframe, duration, sampleCount) {
 
 ## Next Steps for Users
 
-1. **✅ Try chrome-pp** on your system
+1. **GDone: Try chrome-pp** on your system
 2. **📊 Record results** (black time, white time, ratio)
 3. **🔧 Optimize parameters** if needed
 4. **📝 Compare** with other GPU tests in this repo
@@ -302,6 +302,6 @@ Same as parent project - see root LICENSE file.
 **Bonus:** chrome-cache structure (optional, iGPU only)
 **Result:** 24 files, comprehensive documentation, ready to use
 **Advantage:** No external dependencies, works offline, customizable
-**Status:** ✅ Ready for testing on Intel/AMD iGPU and NVIDIA dGPU
+**Status:** GDone: Ready for testing on Intel/AMD iGPU and NVIDIA dGPU
 
 

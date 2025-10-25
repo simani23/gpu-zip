@@ -59,7 +59,7 @@ run_test() {
     if ../bin/texture "${color}" "${ITER}" "${SIZE}" "${TYPE}" "${SAMPLES}"; then
         if [ -f "${filename}" ]; then
             FILES_GENERATED+=("${filename}")
-            echo "      ✓ Generated: ${filename}"
+            echo "      Done: Generated: ${filename}"
         else
             echo "      ✗ Warning: Expected output file not created"
         fi
@@ -94,7 +94,7 @@ if [ ${#FILES_GENERATED[@]} -eq 4 ]; then
         --gradient "time_${TYPE}_${SIZE}_${GRADIENT}.0_${ITER}.txt" \
         --skew "time_${TYPE}_${SIZE}_${SKEW}.0_${ITER}.txt"
     
-    echo "✓ Complete! Results saved in ./plot/time.pdf"
+    echo "Done: Complete! Results saved in ./plot/time.pdf"
 else
     echo "⚠ Warning: Not all tests completed successfully (${#FILES_GENERATED[@]}/4)"
     echo "Plotting available data..."

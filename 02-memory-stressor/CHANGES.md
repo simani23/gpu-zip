@@ -85,7 +85,7 @@ Updated the memory stressor tool to support AMD Radeon iGPU and NVIDIA GeForce d
 
 | Platform | Script | Status | Notes |
 |----------|--------|--------|-------|
-| Linux (Ubuntu) | `stressor.sh` | ✓ Full | Tested on Ubuntu 22.04+ |
+| Linux (Ubuntu) | `stressor.sh` | Done: Full | Tested on Ubuntu 22.04+ |
 
 ## Dependencies
 

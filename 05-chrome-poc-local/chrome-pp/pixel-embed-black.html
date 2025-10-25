@@ -16,31 +16,31 @@
 <body>
   <div id="scroll" style=" 
       clip-path: path('M 0 0 H 1 V 1 H -1 z');  
-      overflow: hidden;
+      overflow: scroll;
       height: 1px;
       width: 1px;
       filter: url(#threshold);
       transform: scale(2000);
-      transform-origin: 0 0;">
-    <iframe id="frameinner" 
-            style="width:2000px;height:2000px;" 
-            frameborder="0" 
-            scrolling="no"
-            src="../test-patterns/solid-black.html">
-    </iframe>
+      transform-origin: 0 0;
+      position: relative;">
+    <div id="content" style="width: 48px; height: 48px; background: #000000;">
+      <!-- Solid black 48x48 -->
+    </div>
   </div>
   
   <svg height="0">
     <filter id="threshold">
-      <feColorMatrix type="matrix" values=" 0.21 0.72 0.07 0 0
-                                             0.21 0.72 0.07 0 0
-                                             0.21 0.72 0.07 0 0
-                                             0    0    0    1 0 " />
-      <feComponentTransfer>
-        <feFuncR type="discrete" tableValues="0 1" />
-        <feFuncG type="discrete" tableValues="0 1" />
-        <feFuncB type="discrete" tableValues="0 1" />
-      </feComponentTransfer>
+      <feTurbulence type="turbulence" baseFrequency="0.9 0.9" numOctaves="1" seed="1" stitchTiles="stitch" result="turbulence"/>
+      <feBlend in="SourceGraphic" in2="turbulence" mode="multiply" result="x1"/>
+      <feBlend in="SourceGraphic" in2="x1" mode="multiply" result="x2"/>
+      <feBlend in="SourceGraphic" in2="x2" mode="multiply" result="x3"/>
+      <feBlend in="SourceGraphic" in2="x3" mode="multiply" result="x4"/>
+      <feBlend in="SourceGraphic" in2="x4" mode="multiply" result="x5"/>
+      <feBlend in="SourceGraphic" in2="x5" mode="multiply" result="x6"/>
+      <feBlend in="SourceGraphic" in2="x6" mode="multiply" result="x7"/>
+      <feBlend in="SourceGraphic" in2="x7" mode="multiply" result="x8"/>
+      <feBlend in="SourceGraphic" in2="x8" mode="multiply" result="x9"/>
+      <feBlend in="SourceGraphic" in2="x9" mode="multiply" result="x10"/>
     </filter> 
   </svg> 
 </body>

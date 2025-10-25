@@ -9,7 +9,7 @@ echo ""
 # Check OS
 echo "1. Operating System:"
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    echo "   ✓ Linux detected"
+    echo "   Done: Linux detected"
 else
     echo "   ✗ Non-Linux OS: $OSTYPE (Linux required)"
 fi
@@ -20,7 +20,7 @@ echo "2. Required Tools:"
 
 # g++
 if command -v g++ &> /dev/null; then
-    echo "   ✓ g++: $(g++ --version | head -1)"
+    echo "   Done: g++: $(g++ --version | head -1)"
 else
     echo "   ✗ g++: NOT FOUND"
     echo "     Install: sudo apt install build-essential"
@@ -28,7 +28,7 @@ fi
 
 # bc
 if command -v bc &> /dev/null; then
-    echo "   ✓ bc: Available"
+    echo "   Done: bc: Available"
 else
     echo "   ✗ bc: NOT FOUND (needed for llc-auto.sh)"
     echo "     Install: sudo apt install bc"
@@ -36,7 +36,7 @@ fi
 
 # Python
 if command -v python3 &> /dev/null; then
-    echo "   ✓ python3: $(python3 --version)"
+    echo "   Done: python3: $(python3 --version)"
 else
     echo "   ✗ python3: NOT FOUND"
 fi
@@ -46,14 +46,14 @@ echo ""
 # Check OpenGL libraries
 echo "3. OpenGL Libraries:"
 if ldconfig -p | grep -q libGL.so; then
-    echo "   ✓ OpenGL library found"
+    echo "   Done: OpenGL library found"
 else
     echo "   ✗ OpenGL library NOT FOUND"
     echo "     Install: sudo apt install libgl1-mesa-dev"
 fi
 
 if ldconfig -p | grep -q libglfw.so; then
-    echo "   ✓ GLFW library found"
+    echo "   Done: GLFW library found"
 else
     echo "   ✗ GLFW library NOT FOUND"
     echo "     Install: sudo apt install libglfw3-dev"
@@ -65,7 +65,7 @@ echo ""
 echo "4. Python Packages:"
 for pkg in numpy matplotlib; do
     if python3 -c "import $pkg" 2>/dev/null; then
-        echo "   ✓ $pkg"
+        echo "   Done: $pkg"
     else
         echo "   ✗ $pkg: NOT FOUND"
         echo "     Install: pip install $pkg"
@@ -83,13 +83,13 @@ if [ -f "/proc/cpuinfo" ]; then
     # Check if AMD or Intel
     if echo "$CPU_MODEL" | grep -qi "AMD\|Ryzen"; then
         echo "   Type: AMD processor detected"
-        echo "   ✓ Use llc-auto.sh for auto-detection"
+        echo "   Done: Use llc-auto.sh for auto-detection"
     elif echo "$CPU_MODEL" | grep -qi "Intel"; then
         echo "   Type: Intel processor detected"
         if echo "$CPU_MODEL" | grep -qi "i7-8700"; then
-            echo "   ✓ Exact match! Use llc.sh for paper reproduction"
+            echo "   Done: Exact match! Use llc.sh for paper reproduction"
         else
-            echo "   ✓ Use llc-auto.sh for auto-detection"
+            echo "   Done: Use llc-auto.sh for auto-detection"
         fi
     else
         echo "   Type: Unknown processor"
@@ -105,7 +105,7 @@ echo ""
 echo "6. Last Level Cache (LLC) Detection:"
 LLC_DETECTED=false
 if [ -d "/sys/devices/system/cpu/cpu0/cache/" ]; then
-    echo "   ✓ Cache sysfs available"
+    echo "   Done: Cache sysfs available"
     
     for idx in 3 2 1 0; do
         CACHE_SIZE_FILE="/sys/devices/system/cpu/cpu0/cache/index${idx}/size"
@@ -139,19 +139,19 @@ if command -v lspci &> /dev/null; then
     GPU_INFO=$(lspci | grep -i 'vga\|3d')
     
     if echo "$GPU_INFO" | grep -qi "intel"; then
-        echo "   ✓ Intel iGPU detected"
+        echo "   Done: Intel iGPU detected"
         echo "   Type: Integrated GPU (shares LLC with CPU)"
         echo "   Status: Ideal for LLC walk time tests"
     fi
     
     if echo "$GPU_INFO" | grep -qi "amd\|radeon"; then
-        echo "   ✓ AMD Radeon detected"
+        echo "   Done: AMD Radeon detected"
         echo "   Type: Integrated GPU (shares L3 with CPU)"
         echo "   Status: Ideal for LLC walk time tests"
     fi
     
     if echo "$GPU_INFO" | grep -qi "nvidia"; then
-        echo "   ✓ NVIDIA GPU detected"
+        echo "   Done: NVIDIA GPU detected"
         echo "   Type: Discrete GPU (separate VRAM/cache)"
         echo "   ⚠ Status: LLC test measures CPU cache only"
         echo "   Note: GPU compression may not show in results"
@@ -171,14 +171,14 @@ echo ""
 # Check if binaries are built
 echo "8. Compiled Binaries:"
 if [ -f "../bin/texture" ]; then
-    echo "   ✓ texture (original) built"
+    echo "   Done: texture (original) built"
 else
     echo "   ✗ texture (original) NOT FOUND"
     echo "     Build: cd .. && make"
 fi
 
 if [ -f "../bin/texture-auto" ]; then
-    echo "   ✓ texture-auto (auto-detection) built"
+    echo "   Done: texture-auto (auto-detection) built"
 else
     echo "   ✗ texture-auto (auto-detection) NOT FOUND"
     echo "     Build: cd .. && make"
@@ -189,7 +189,7 @@ echo ""
 # Check shader files
 echo "9. Shader Files:"
 if [ -f "../../shader/vertex.glsl" ] && [ -f "../../shader/fragment.glsl" ]; then
-    echo "   ✓ Shader files found"
+    echo "   Done: Shader files found"
 else
     echo "   ✗ Shader files NOT FOUND"
     echo "     Check: ../../shader/vertex.glsl and fragment.glsl"
@@ -207,7 +207,7 @@ if lspci 2>/dev/null | grep -i 'vga\|3d' | grep -qi "intel\|amd.*radeon"; then
 fi
 
 if [ -f "../bin/texture-auto" ] && [ "$LLC_DETECTED" = true ] && [ "$HAS_IGPU" = true ]; then
-    echo "✓ System ready for LLC walk time tests!"
+    echo "Done: System ready for LLC walk time tests!"
     echo ""
     echo "Recommended: Run llc-auto.sh for optimal configuration"
 elif [ -f "../bin/texture-auto" ] && [ "$LLC_DETECTED" = true ]; then

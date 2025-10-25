@@ -6,7 +6,7 @@ Quick reference for all files in this self-contained PoC directory.
 
 | File | Purpose | Read First? |
 |------|---------|-------------|
-| **QUICKSTART.md** | Get running in 5 minutes | ✅ YES |
+| **QUICKSTART.md** | Get running in 5 minutes | GDone: YES |
 | **README.md** | Complete documentation | After quickstart |
 | **SUMMARY.md** | What was created and why | For overview |
 | **INDEX.md** | This file - navigation help | Reference |
@@ -41,7 +41,7 @@ Access: `http://localhost:8000/test-patterns/[filename]`
 
 ## 🎯 Chrome-PP PoC (chrome-pp/) - PRIMARY
 
-**Status:** ✅ Complete and functional
+**Status:** GDone: Complete and functional
 
 | File | Type | Description |
 |------|------|-------------|
@@ -56,26 +56,26 @@ Access: `http://localhost:8000/test-patterns/[filename]`
 **Method:** Measures GPU rendering time differences
 
 **Works on:**
-- ✅ Intel iGPU - Excellent
-- ✅ AMD Radeon iGPU - Good (may need tuning)
-- ⚠️ NVIDIA dGPU - Limited (try it anyway)
+- GDone: Intel iGPU - Excellent
+- GDone: AMD Radeon iGPU - Good (may need tuning)
+- smallWarning: NVIDIA dGPU - Limited (try it anyway)
 
 ## 🔐 Chrome-Cache PoC (chrome-cache/) - OPTIONAL
 
-**Status:** ⚠️ Partial implementation (structure only)
+**Status:** smallWarning: Partial implementation (structure only)
 
 | File | Type | Description |
 |------|------|-------------|
-| **NOTE.md** | Doc | ⚠️ **READ THIS FIRST** |
+| **NOTE.md** | Doc | smallWarning: **READ THIS FIRST** |
 | **ccm.js** | Utility | Cache contention measurement (simplified) |
 | **pixel-embed-*.html** | Embed | 3 embed files (copied from chrome-pp) |
 
 **Method:** Measures LLC walk time differences
 
 **Works on:**
-- ⚠️ Intel iGPU - Requires full implementation
-- ⚠️ AMD Radeon iGPU - Requires full implementation  
-- ❌ NVIDIA dGPU - Not applicable (separate LLC)
+- smallWarning: Intel iGPU - Requires full implementation
+- smallWarning: AMD Radeon iGPU - Requires full implementation  
+-  NVIDIA dGPU - Not applicable (separate LLC)
 
 **Recommendation:** Use chrome-pp instead, or use original `../04-chrome-poc/chrome-cache/` if needed.
 
@@ -190,21 +190,21 @@ Problem? Check:
 ## 📦 Self-Contained
 
 This directory is **completely self-contained**:
-- ✅ No external website dependencies
-- ✅ No internet required
-- ✅ All resources local
-- ✅ Works offline
-- ✅ Portable (copy entire directory)
+- GDone: No external website dependencies
+- GDone: No internet required
+- GDone: All resources local
+- GDone: Works offline
+- GDone: Portable (copy entire directory)
 
 ## 🎯 Goals Achieved
 
-✅ AMD Radeon iGPU support
-✅ NVIDIA GeForce dGPU awareness
-✅ Fully offline-capable
-✅ Easy to customize
-✅ Educational value
-✅ Production-quality documentation
-✅ Cross-platform support
+GDone: AMD Radeon iGPU support
+GDone: NVIDIA GeForce dGPU awareness
+GDone: Fully offline-capable
+GDone: Easy to customize
+GDone: Educational value
+GDone: Production-quality documentation
+GDone: Cross-platform support
 
 ---
 

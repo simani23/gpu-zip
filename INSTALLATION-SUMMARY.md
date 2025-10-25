@@ -35,7 +35,7 @@
      - CPU information
      - Cache information
    - **Features:**
-     - Color-coded output (✅❌⚠️)
+     - Color-coded output (GDone:smallWarning:)
      - Detailed GPU analysis
      - Platform-specific recommendations
      - Success/warning/failure counts
@@ -127,17 +127,17 @@ npm run test:memory
 
 **Step-by-step process:**
 
-1. ✅ Detects OS (Ubuntu/Debian check)
-2. ✅ Updates package lists (`sudo apt update`)
-3. ✅ Installs build tools
-4. ✅ Installs OpenGL/GLFW libraries
-5. ✅ Installs Python + NumPy + Matplotlib
-6. ✅ Installs system utilities
-7. ✅ Installs MSR tools
-8. ✅ Loads MSR kernel module
-9. ✅ Detects GPU
-10. ✅ Shows Python environment info
-11. ✅ Provides next steps
+1. GDone: Detects OS (Ubuntu/Debian check)
+2. GDone: Updates package lists (`sudo apt update`)
+3. GDone: Installs build tools
+4. GDone: Installs OpenGL/GLFW libraries
+5. GDone: Installs Python + NumPy + Matplotlib
+6. GDone: Installs system utilities
+7. GDone: Installs MSR tools
+8. GDone: Loads MSR kernel module
+9. GDone: Detects GPU
+10. GDone: Shows Python environment info
+11. GDone: Provides next steps
 
 **Output example:**
 ```
@@ -153,14 +153,14 @@ Detected OS: Ubuntu 22.04.1 LTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ...
 
-✅ Installation Complete!
+GDone: Installation Complete!
 
 📋 Installed Components:
-  ✅ Build tools (gcc, g++, make)
-  ✅ OpenGL/GLFW libraries
-  ✅ Python 3 + NumPy + Matplotlib
-  ✅ System utilities (stress-ng, bc, pciutils)
-  ✅ MSR tools
+  GDone: Build tools (gcc, g++, make)
+  GDone: OpenGL/GLFW libraries
+  GDone: Python 3 + NumPy + Matplotlib
+  GDone: System utilities (stress-ng, bc, pciutils)
+  GDone: MSR tools
 
 🎮 Detected GPU(s):
 Intel Corporation UHD Graphics 630
@@ -175,17 +175,17 @@ Python 3.10.6
 
 **Verification process:**
 
-1. ✅ System information (OS, kernel)
-2. ✅ CPU information (model, cores, type)
-3. ✅ GPU detection and classification
-4. ✅ Build tools check
-5. ✅ Graphics libraries check
-6. ✅ Python environment check
-7. ✅ System utilities check
-8. ✅ MSR module and device check
-9. ✅ Built binaries check
-10. ✅ Cache information check
-11. ✅ Summary with pass/warn/fail counts
+1. GDone: System information (OS, kernel)
+2. GDone: CPU information (model, cores, type)
+3. GDone: GPU detection and classification
+4. GDone: Build tools check
+5. GDone: Graphics libraries check
+6. GDone: Python environment check
+7. GDone: System utilities check
+8. GDone: MSR module and device check
+9. GDone: Built binaries check
+10. GDone: Cache information check
+11. GDone: Summary with pass/warn/fail counts
 
 **Output example:**
 ```
@@ -210,15 +210,15 @@ Type: AMD processor
 🎮 GPU Information
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 AMD/ATI Radeon RX Vega 11
-✅ AMD Radeon detected - Good platform for all tests
+GDone: AMD Radeon detected - Good platform for all tests
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔨 Build Tools
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ GCC compiler
-✅ G++ compiler
-✅ Make
-✅ Git
+GDone: GCC compiler
+GDone: G++ compiler
+GDone: Make
+GDone: Git
 
 ...
 
@@ -229,7 +229,7 @@ Success: 25 checks passed
 Warnings: 2 optional items
 Failures: 0 required items missing
 
-✅ System is ready for GPU security research!
+GDone: System is ready for GPU security research!
 ```
 
 ## Dependencies Installed
@@ -264,39 +264,39 @@ Failures: 0 required items missing
 
 | Platform | install-dependencies.sh | check-system.sh | Status |
 |----------|-------------------------|-----------------|--------|
-| Ubuntu 20.04 | ✅ Tested | ✅ Tested | Supported |
-| Ubuntu 22.04 | ✅ Tested | ✅ Tested | Recommended |
-| Ubuntu 24.04 | ✅ Should work | ✅ Should work | Expected |
-| Debian 11+ | ✅ Should work | ✅ Should work | Expected |
-| Pop!_OS | ✅ Should work | ✅ Should work | Expected |
-| Linux Mint | ✅ Should work | ✅ Should work | Expected |
+| Ubuntu 20.04 | GDone: Tested | GDone: Tested | Supported |
+| Ubuntu 22.04 | GDone: Tested | GDone: Tested | Recommended |
+| Ubuntu 24.04 | GDone: Should work | GDone: Should work | Expected |
+| Debian 11+ | GDone: Should work | GDone: Should work | Expected |
+| Pop!_OS | GDone: Should work | GDone: Should work | Expected |
+| Linux Mint | GDone: Should work | GDone: Should work | Expected |
 
 ## Features
 
 ### install-dependencies.sh Features
 
-- ✅ Non-root execution (uses sudo only when needed)
-- ✅ OS detection and validation
-- ✅ Progress indicators with emoji
-- ✅ Colored section headers
-- ✅ Error handling (exits on failure)
-- ✅ GPU auto-detection
-- ✅ Python environment validation
-- ✅ MSR module loading
-- ✅ Comprehensive summary
-- ✅ Next steps guidance
+- GDone: Non-root execution (uses sudo only when needed)
+- GDone: OS detection and validation
+- GDone: Progress indicators with emoji
+- GDone: Colored section headers
+- GDone: Error handling (exits on failure)
+- GDone: GPU auto-detection
+- GDone: Python environment validation
+- GDone: MSR module loading
+- GDone: Comprehensive summary
+- GDone: Next steps guidance
 
 ### check-system.sh Features
 
-- ✅ Color-coded output (green/yellow/red)
-- ✅ Emoji indicators (✅❌⚠️)
-- ✅ GPU type classification (Intel/AMD/NVIDIA)
-- ✅ Platform-specific recommendations
-- ✅ Component-by-component verification
-- ✅ Exit codes (0=success, 1=failure)
-- ✅ Built binary detection
-- ✅ Cache information retrieval
-- ✅ Success/warning/failure statistics
+- GDone: Color-coded output (green/yellow/red)
+- GDone: Emoji indicators (GDone:smallWarning:)
+- GDone: GPU type classification (Intel/AMD/NVIDIA)
+- GDone: Platform-specific recommendations
+- GDone: Component-by-component verification
+- GDone: Exit codes (0=success, 1=failure)
+- GDone: Built binary detection
+- GDone: Cache information retrieval
+- GDone: Success/warning/failure statistics
 
 ## File Locations
 
@@ -422,9 +422,9 @@ To add new dependencies to the install script:
 ## Testing
 
 Scripts have been tested on:
-- ✅ Ubuntu 22.04 LTS (AMD Ryzen + Radeon iGPU)
-- ✅ Ubuntu 22.04 LTS (Intel Core + Intel iGPU)
-- ✅ Ubuntu 20.04 LTS (NVIDIA dGPU)
+- GDone: Ubuntu 22.04 LTS (AMD Ryzen + Radeon iGPU)
+- GDone: Ubuntu 22.04 LTS (Intel Core + Intel iGPU)
+- GDone: Ubuntu 20.04 LTS (NVIDIA dGPU)
 
 ## License
 

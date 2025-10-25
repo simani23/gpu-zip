@@ -194,12 +194,68 @@
   </div>
 
   <div class="control-panel">
-    <h3>Results</h3>
+    <h3>Calibration Results</h3>
     <div id="results">
       <p>Click "Run PoC" to start testing.</p>
       <p><strong>Black Timing:</strong> <span id="black-time">-</span> ms</p>
       <p><strong>White Timing:</strong> <span id="white-time">-</span> ms</p>
       <p><strong>Ratio:</strong> <span id="timing-ratio">-</span></p>
+    </div>
+  </div>
+
+  <div class="control-panel" id="attack-results" style="display: none;">
+    <h3>🎯 Attack Results (Full Pixel Stealing)</h3>
+    <div>
+      <p><strong>Accuracy:</strong> <span id="attack-accuracy">-</span></p>
+      <p><strong>Total Time:</strong> <span id="attack-time">-</span></p>
+      <p><strong>Correct Pixels:</strong> <span id="attack-pixels">-</span></p>
+    </div>
+  </div>
+
+  <div class="control-panel" style="background: #fff; border: 2px solid #4CAF50;">
+    <h3>Image Reconstruction</h3>
+    <div style="display: flex; gap: 20px; align-items: flex-start;">
+      <div style="text-align: center;">
+        <h4>Target (Hidden)</h4>
+        <div style="width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc;">
+          <p style="color: #999; font-size: 12px;">🔒 Cross-Origin Content<br>(Cannot access directly)</p>
+        </div>
+      </div>
+      <div style="text-align: center;">
+        <h4>Reconstructed via Side-Channel</h4>
+        <canvas id="reconstruction-canvas" 
+                width="48" 
+                height="48" 
+                style="border: 2px solid #4CAF50; image-rendering: pixelated; width: 200px; height: 200px; background: #808080;">
+        </canvas>
+        <p style="font-size: 12px; margin-top: 5px; color: #666;">48×48 pixels (scaled for visibility)</p>
+      </div>
+      <div style="text-align: center;">
+        <h4>Expected (Checkerboard)</h4>
+        <div style="width: 200px; height: 200px; border: 1px solid #ccc; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr);">
+          <div style="background: #000;"></div>
+          <div style="background: #fff;"></div>
+          <div style="background: #000;"></div>
+          <div style="background: #fff;"></div>
+          <div style="background: #fff;"></div>
+          <div style="background: #000;"></div>
+          <div style="background: #fff;"></div>
+          <div style="background: #000;"></div>
+          <div style="background: #000;"></div>
+          <div style="background: #fff;"></div>
+          <div style="background: #000;"></div>
+          <div style="background: #fff;"></div>
+          <div style="background: #fff;"></div>
+          <div style="background: #000;"></div>
+          <div style="background: #fff;"></div>
+          <div style="background: #000;"></div>
+        </div>
+        <p style="font-size: 12px; margin-top: 5px; color: #666;">4×4 squares (reference)</p>
+      </div>
+    </div>
+    <div style="margin-top: 15px; padding: 10px; background: #fffbcc; border: 1px solid #ffd700; border-radius: 4px;">
+      <strong></strong> This demonstrates pixel stealing on a <em>local test pattern</em>. 
+      In a real attack, this would reconstruct cross-origin images pixel-by-pixel using GPU compression timing side-channels.
     </div>
   </div>
 

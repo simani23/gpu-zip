@@ -20,11 +20,11 @@ FAILURES=0
 
 check_cmd() {
     if command -v "$1" &> /dev/null; then
-        echo -e "${GREEN}✅${NC} $2"
+        echo -e "${GREEN}GDone:${NC} $2"
         ((SUCCESS++))
         return 0
     else
-        echo -e "${RED}❌${NC} $2 - NOT FOUND"
+        echo -e "${RED}${NC} $2 - NOT FOUND"
         ((FAILURES++))
         return 1
     fi
@@ -32,11 +32,11 @@ check_cmd() {
 
 check_file() {
     if [ -f "$1" ]; then
-        echo -e "${GREEN}✅${NC} $2"
+        echo -e "${GREEN}GDone:${NC} $2"
         ((SUCCESS++))
         return 0
     else
-        echo -e "${RED}❌${NC} $2 - NOT FOUND"
+        echo -e "${RED}${NC} $2 - NOT FOUND"
         ((FAILURES++))
         return 1
     fi
@@ -44,11 +44,11 @@ check_file() {
 
 check_python_module() {
     if python3 -c "import $1" 2>/dev/null; then
-        echo -e "${GREEN}✅${NC} Python module: $1"
+        echo -e "${GREEN}GDone:${NC} Python module: $1"
         ((SUCCESS++))
         return 0
     else
-        echo -e "${RED}❌${NC} Python module: $1 - NOT FOUND"
+        echo -e "${RED}${NC} Python module: $1 - NOT FOUND"
         ((FAILURES++))
         return 1
     fi
@@ -56,10 +56,10 @@ check_python_module() {
 
 check_optional() {
     if command -v "$1" &> /dev/null; then
-        echo -e "${GREEN}✅${NC} $2 (optional)"
+        echo -e "${GREEN}GDone:${NC} $2 (optional)"
         return 0
     else
-        echo -e "${YELLOW}⚠️${NC}  $2 - not installed (optional)"
+        echo -e "${YELLOW}smallWarning:${NC}  $2 - not installed (optional)"
         ((WARNINGS++))
         return 1
     fi
@@ -109,22 +109,22 @@ if command -v lspci &> /dev/null; then
         echo ""
         
         if echo "$GPU_INFO" | grep -qi "intel"; then
-            echo -e "${GREEN}✅ Intel iGPU detected - Excellent platform for all tests${NC}"
+            echo -e "${GREEN}GDone: Intel iGPU detected - Excellent platform for all tests${NC}"
         fi
         
         if echo "$GPU_INFO" | grep -qi "amd\|radeon"; then
-            echo -e "${GREEN}✅ AMD Radeon detected - Good platform for all tests${NC}"
+            echo -e "${GREEN}GDone: AMD Radeon detected - Good platform for all tests${NC}"
         fi
         
         if echo "$GPU_INFO" | grep -qi "nvidia"; then
-            echo -e "${YELLOW}⚠️  NVIDIA dGPU detected - Some tests have limited effectiveness${NC}"
+            echo -e "${YELLOW}smallWarning:  NVIDIA dGPU detected - Some tests have limited effectiveness${NC}"
             echo "   (LLC tests measure CPU cache only, not GPU L2)"
         fi
     else
-        echo -e "${RED}❌ No GPU detected${NC}"
+        echo -e "${RED} No GPU detected${NC}"
     fi
 else
-    echo -e "${RED}❌ lspci not found - cannot detect GPU${NC}"
+    echo -e "${RED} lspci not found - cannot detect GPU${NC}"
 fi
 echo ""
 
@@ -145,26 +145,26 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 # Check for library files
 if ldconfig -p 2>/dev/null | grep -q libglfw; then
-    echo -e "${GREEN}✅${NC} GLFW library"
+    echo -e "${GREEN}GDone:${NC} GLFW library"
     ((SUCCESS++))
 else
-    echo -e "${RED}❌${NC} GLFW library - NOT FOUND"
+    echo -e "${RED}${NC} GLFW library - NOT FOUND"
     ((FAILURES++))
 fi
 
 if ldconfig -p 2>/dev/null | grep -q libGL.so; then
-    echo -e "${GREEN}✅${NC} OpenGL library"
+    echo -e "${GREEN}GDone:${NC} OpenGL library"
     ((SUCCESS++))
 else
-    echo -e "${RED}❌${NC} OpenGL library - NOT FOUND"
+    echo -e "${RED}${NC} OpenGL library - NOT FOUND"
     ((FAILURES++))
 fi
 
 if ldconfig -p 2>/dev/null | grep -q libGLU.so; then
-    echo -e "${GREEN}✅${NC} GLU library"
+    echo -e "${GREEN}GDone:${NC} GLU library"
     ((SUCCESS++))
 else
-    echo -e "${RED}❌${NC} GLU library - NOT FOUND"
+    echo -e "${RED}${NC} GLU library - NOT FOUND"
     ((FAILURES++))
 fi
 
@@ -200,19 +200,19 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "⚙️  MSR Kernel Module"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if lsmod | grep -q "^msr"; then
-    echo -e "${GREEN}✅${NC} MSR module is loaded"
+    echo -e "${GREEN}GDone:${NC} MSR module is loaded"
     ((SUCCESS++))
 else
-    echo -e "${YELLOW}⚠️${NC}  MSR module not loaded"
+    echo -e "${YELLOW}smallWarning:${NC}  MSR module not loaded"
     echo "   Load with: sudo modprobe msr"
     ((WARNINGS++))
 fi
 
 if [ -c /dev/cpu/0/msr ]; then
-    echo -e "${GREEN}✅${NC} MSR device accessible"
+    echo -e "${GREEN}GDone:${NC} MSR device accessible"
     ((SUCCESS++))
 else
-    echo -e "${YELLOW}⚠️${NC}  MSR device not accessible"
+    echo -e "${YELLOW}smallWarning:${NC}  MSR device not accessible"
     echo "   May need to load module or disable Secure Boot"
     ((WARNINGS++))
 fi
@@ -248,14 +248,14 @@ if [ -d "/sys/devices/system/cpu/cpu0/cache/" ]; then
             SIZE=$(cat "$CACHE_SIZE_FILE")
             
             if [ "$LEVEL" -ge 3 ]; then
-                echo -e "${GREEN}✅${NC} Last Level Cache (L${LEVEL}): $SIZE"
+                echo -e "${GREEN}GDone:${NC} Last Level Cache (L${LEVEL}): $SIZE"
                 ((SUCCESS++))
                 break
             fi
         fi
     done
 else
-    echo -e "${YELLOW}⚠️${NC}  Cache information not available in sysfs"
+    echo -e "${YELLOW}smallWarning:${NC}  Cache information not available in sysfs"
     ((WARNINGS++))
 fi
 echo ""
@@ -270,7 +270,7 @@ echo -e "${RED}Failures:${NC} $FAILURES required items missing"
 echo ""
 
 if [ $FAILURES -eq 0 ]; then
-    echo -e "${GREEN}✅ System is ready for GPU security research!${NC}"
+    echo -e "${GREEN}GDone: System is ready for GPU security research!${NC}"
     echo ""
     echo "Next steps:"
     echo "  1. Build binaries: cd poc/gpu-create && make"
@@ -278,7 +278,7 @@ if [ $FAILURES -eq 0 ]; then
     echo "  3. See README.md in each directory for details"
     exit 0
 else
-    echo -e "${RED}❌ System has missing dependencies${NC}"
+    echo -e "${RED} System has missing dependencies${NC}"
     echo ""
     echo "Run installation script:"
     echo "  ./install-dependencies.sh"
