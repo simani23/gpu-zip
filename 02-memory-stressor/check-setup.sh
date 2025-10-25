@@ -161,3 +161,4 @@ else
     echo "✗ Missing core requirements - see above for details"
 fi
 
+

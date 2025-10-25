@@ -307,3 +307,4 @@ uint32_t get_llc_size_bytes() {
     return cache_config.cache_size;
 }
 
+

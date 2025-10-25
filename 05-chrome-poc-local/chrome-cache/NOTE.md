@@ -99,3 +99,4 @@ Do you have Intel or AMD iGPU?
 
 For most users, **chrome-pp provides sufficient demonstration** of the GPU compression side-channel.
 
+

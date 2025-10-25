@@ -304,3 +304,4 @@ Same as parent project - see root LICENSE file.
 **Advantage:** No external dependencies, works offline, customizable
 **Status:** ✅ Ready for testing on Intel/AMD iGPU and NVIDIA dGPU
 
+
