@@ -276,7 +276,34 @@
     </filter>
   </svg>
 
+  <!-- Characterization Controls -->
+  <div class="control-panel" style="background: #fffbcc; border: 2px solid #ffa500;">
+    <h3>🔬 Parameter Characterization</h3>
+    <p>Automatically test different parameter combinations to find optimal settings for black/white detection.</p>
+    
+    <div class="control-group">
+      <button id="char-quick-button" onclick="quickTest()" style="background: #2196F3;">Quick Test (Current Settings)</button>
+      <button id="char-run-button" onclick="runCharacterization()" style="background: #FF9800;">Run Full Characterization</button>
+      <button id="char-stop-button" onclick="stopCharacterization()" style="background: #f44336;">Stop Characterization</button>
+    </div>
+    
+    <div class="control-group">
+      <button id="char-download-button" onclick="downloadResults()" style="background: #9C27B0;">Download Results JSON</button>
+    </div>
+    
+    <div style="margin-top: 10px; padding: 10px; background: white; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+      <strong>How to use:</strong>
+      <ol style="margin: 5px 0; padding-left: 20px;">
+        <li><strong>Quick Test:</strong> Tests current parameter settings (good for manual tuning)</li>
+        <li><strong>Full Characterization:</strong> Runs 50+ test combinations (~2 hours). Check console for progress.</li>
+        <li><strong>Download Results:</strong> Save results as JSON file for analysis</li>
+      </ol>
+      <p style="margin: 5px 0;"><strong>Tip:</strong> Open browser console (F12) to see detailed progress and results!</p>
+    </div>
+  </div>
+
   <script src="chrome.js"></script>
+  <script src="characterize.js"></script>
 </body>
 </html>
 

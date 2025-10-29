@@ -180,6 +180,35 @@
 
   <svg height="0" id="input-filter1"></svg>
   <svg height="0" id="input-filter2"></svg>
+
+  <!-- Characterization Controls -->
+  <div class="control-panel" style="background: #fffbcc; border: 2px solid #ffa500;">
+    <h3>🔬 Parameter Characterization (LLC Cache)</h3>
+    <p>Automatically test different parameter combinations to find optimal settings for LLC-based detection.</p>
+    
+    <div class="control-group">
+      <button onclick="quickCacheTest()" style="background: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">Quick Test (Current Settings)</button>
+      <button onclick="runCacheCharacterization()" style="background: #FF9800; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">Run Full Characterization</button>
+      <button onclick="stopCacheCharacterization()" style="background: #f44336; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">Stop Characterization</button>
+    </div>
+    
+    <div class="control-group">
+      <button onclick="downloadCacheResults()" style="background: #9C27B0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px;">Download Results JSON</button>
+    </div>
+    
+    <div style="margin-top: 10px; padding: 10px; background: white; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+      <strong>How to use:</strong>
+      <ol style="margin: 5px 0; padding-left: 20px;">
+        <li><strong>Quick Test:</strong> Tests current parameter settings (good for manual tuning)</li>
+        <li><strong>Full Characterization:</strong> Runs 50+ test combinations (~2 hours). Check console for progress.</li>
+        <li><strong>Download Results:</strong> Save results as JSON file for analysis</li>
+      </ol>
+      <p style="margin: 5px 0;"><strong>Note:</strong> LLC method only works with iGPU (Intel/AMD). Does NOT work with NVIDIA dGPU!</p>
+      <p style="margin: 5px 0;"><strong>Tip:</strong> Open browser console (F12) to see detailed progress and results!</p>
+    </div>
+  </div>
+
+  <script src="characterize.js"></script>
 </body>
 </html>
 
