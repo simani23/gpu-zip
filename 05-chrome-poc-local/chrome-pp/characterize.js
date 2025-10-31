@@ -14,30 +14,34 @@ class ParameterCharacterization {
   generateTestConfigs() {
     const configs = [];
     
-    // Parameter ranges for systematic search - EXTENDED RANGES for better separation
+    // OPTIMIZED RANGES based on analysis:
+    // - Current results show ratios ~1.0 (no separation)
+    // - Need longer collection times and more repetitions
+    // - Focus on higher div_size and layer values
+    // - Test stress more strategically
     const paramRanges = {
-      time_collect: [100, 200, 300, 500, 1000, 2000, 5000, 10000],
-      repetition: [10, 20, 30, 50, 100, 200, 300, 500],
+      time_collect: [500, 1000, 2000, 5000],  // Reduced: focus on longer times
+      repetition: [50, 100, 200],  // Reduced: focus on higher repetitions
       stress: [0, 1],
-      warmup: [0, 1000, 2000, 5000, 10000, 20000],
-      div_size: [500, 1000, 2000, 3000, 4000, 6000, 8000, 10000],
-      layer: [1, 3, 5, 10, 15, 20, 25, 30, 40, 50],
-      num_workers: [1, 2, 4, 8, 16, 32],
-      bigint_digits: [10000, 25000, 50000, 100000, 200000, 500000, 1000000],
+      warmup: [5000, 10000],  // Reduced: reasonable warmup values
+      div_size: [2000, 3000, 4000, 6000, 8000],  // Removed very small/large extremes
+      layer: [10, 15, 20, 25, 30, 40, 50],  // Removed very low layers (1, 3, 5)
+      num_workers: [4, 8, 16, 32],  // Focus on moderate to high worker counts
+      bigint_digits: [100000, 200000, 500000],  // Focus on meaningful stress levels
     };
 
-    // Grid search over key parameters (keeping others at defaults)
-    // Test 1: Vary div_size and layer (most important for black/white separation)
-    // Use more extreme values to find better separation
-    const extremeDivSizes = [500, 1000, 2000, 4000, 6000, 8000, 10000];
-    const extremeLayers = [1, 3, 5, 10, 15, 20, 30, 40, 50];
+    // OPTIMIZED Test 1: Focused div_size × layer search
+    // Based on results: remove very small div_size (500, 1000) and very low layers (1, 3, 5)
+    // Focus on combinations that might actually work
+    const focusedDivSizes = [2000, 3000, 4000, 6000, 8000];
+    const focusedLayers = [15, 20, 25, 30, 40, 50];
     
-    for (let div_size of extremeDivSizes) {
-      for (let layer of extremeLayers) {
+    for (let div_size of focusedDivSizes) {
+      for (let layer of focusedLayers) {
         configs.push({
           name: `divsize_${div_size}_layer_${layer}`,
-          time_collect: 500,
-          repetition: 50,
+          time_collect: 1000,  // Increased from 500
+          repetition: 100,  // Increased from 50
           stress: 0,
           warmup: 5000,
           div_size: div_size,
@@ -50,20 +54,21 @@ class ParameterCharacterization {
       }
     }
 
-    // Test 2: Vary time_collect and repetition with more extreme values
-    const extremeTimes = [100, 200, 500, 1000, 2000, 5000, 10000];
-    const extremeRepetitions = [10, 20, 50, 100, 200, 300, 500];
+    // OPTIMIZED Test 2: Focus on longer collection times (current tests too short)
+    // Higher time_collect and repetition should help with timing separation
+    const longerTimes = [1000, 2000, 5000];
+    const higherRepetitions = [100, 200];
     
-    for (let time of extremeTimes) {
-      for (let rept of extremeRepetitions) {
+    for (let time of longerTimes) {
+      for (let rept of higherRepetitions) {
         configs.push({
           name: `time_${time}_rept_${rept}`,
           time_collect: time,
           repetition: rept,
           stress: 0,
           warmup: 5000,
-          div_size: 2000,
-          layer: 10,
+          div_size: 4000,  // Increased from 2000
+          layer: 30,  // Increased from 10
           num_workers: 4,
           bigint_digits: 100000,
           low: 0.3,
@@ -72,22 +77,49 @@ class ParameterCharacterization {
       }
     }
 
-    // Test 3: With memory stress enabled - use more extreme values
-    for (let stress of paramRanges.stress) {
-      if (stress === 0) continue; // Already tested above
-      const extremeWorkers = [1, 4, 8, 16, 32];
-      const extremeDigits = [10000, 50000, 200000, 500000, 1000000];
-      
-      for (let workers of extremeWorkers) {
-        for (let digits of extremeDigits) {
+    // OPTIMIZED Test 3: Strategic stress testing
+    // Focus on fewer, more meaningful combinations with longer collection times
+    const stressWorkers = [4, 8, 16, 32];  // Removed 1, 2 (too low)
+    const stressDigits = [200000, 500000];  // Focus on higher stress
+    const stressLayers = [20, 30, 40, 50];  // Focus on higher layers
+    
+    // Test 3a: Workers × Digits (with good base params)
+    for (let workers of stressWorkers) {
+      for (let digits of stressDigits) {
+        configs.push({
+          name: `stress_workers_${workers}_digits_${digits}`,
+          time_collect: 2000,  // Increased from 500
+          repetition: 100,  // Increased from 50
+          stress: 1,
+          warmup: 5000,
+          div_size: 4000,  // Increased from 2000
+          layer: 30,  // Increased from 10
+          num_workers: workers,
+          bigint_digits: digits,
+          low: 0.3,
+          high: 0.7
+        });
+      }
+    }
+    
+    // Test 3b: Strategic workers × layers (reduced combinations)
+    // Only test key combinations, not full grid
+    const keyWorkers = [8, 16, 32];
+    const keyLayers = [25, 30, 40, 50];
+    const keyDigits = [200000, 500000];
+    
+    console.log('[CHARACTERIZATION] Generating strategic stress workers × SVG layers combinations...');
+    for (let workers of keyWorkers) {
+      for (let layer of keyLayers) {
+        for (let digits of keyDigits) {
           configs.push({
-            name: `stress_workers_${workers}_digits_${digits}`,
-            time_collect: 500,
-            repetition: 50,
-            stress: stress,
+            name: `stress_workers_${workers}_layer_${layer}_digits_${digits}`,
+            time_collect: 2000,  // Longer collection
+            repetition: 100,  // More repetitions
+            stress: 1,
             warmup: 5000,
-            div_size: 2000,
-            layer: 10,
+            div_size: 4000,  // Higher div_size
+            layer: layer,
             num_workers: workers,
             bigint_digits: digits,
             low: 0.3,
@@ -97,28 +129,34 @@ class ParameterCharacterization {
       }
     }
 
-    // Test 4: Combined optimal parameters with extreme values
-    // Test extreme combinations that might achieve better separation
+    // OPTIMIZED Test 4: Focused optimal candidates
+    // Removed low div_size and low layer tests (didn't work)
+    // Focus on combinations with longer collection times
     const optimalCandidates = [
-      // Low layer, high div_size
-      { div_size: 8000, layer: 1, stress: 0 },
-      { div_size: 10000, layer: 3, stress: 0 },
-      { div_size: 6000, layer: 5, stress: 0 },
-      // High layer, high div_size
-      { div_size: 4000, layer: 40, stress: 0 },
-      { div_size: 6000, layer: 50, stress: 0 },
-      { div_size: 8000, layer: 30, stress: 0 },
-      // High layer, low div_size
-      { div_size: 500, layer: 50, stress: 0 },
-      { div_size: 1000, layer: 40, stress: 0 },
-      // With stress and extreme workers/digits
-      { div_size: 2000, layer: 15, stress: 1, num_workers: 32, bigint_digits: 1000000 },
-      { div_size: 4000, layer: 20, stress: 1, num_workers: 16, bigint_digits: 500000 },
-      { div_size: 6000, layer: 25, stress: 1, num_workers: 16, bigint_digits: 200000 },
-      // Extreme warmup values
-      { div_size: 4000, layer: 20, stress: 0, warmup: 0 },
-      { div_size: 4000, layer: 20, stress: 0, warmup: 20000 },
-      { div_size: 8000, layer: 30, stress: 0, warmup: 10000 },
+      // High layer, high div_size (no stress)
+      { div_size: 6000, layer: 40, stress: 0, time_collect: 2000, repetition: 100 },
+      { div_size: 8000, layer: 50, stress: 0, time_collect: 2000, repetition: 100 },
+      { div_size: 4000, layer: 50, stress: 0, time_collect: 2000, repetition: 100 },
+      
+      // High layer, high div_size WITH stress (key test)
+      { div_size: 4000, layer: 30, stress: 1, num_workers: 16, bigint_digits: 500000, time_collect: 2000, repetition: 100 },
+      { div_size: 4000, layer: 40, stress: 1, num_workers: 16, bigint_digits: 500000, time_collect: 2000, repetition: 100 },
+      { div_size: 4000, layer: 50, stress: 1, num_workers: 16, bigint_digits: 500000, time_collect: 2000, repetition: 100 },
+      { div_size: 6000, layer: 30, stress: 1, num_workers: 16, bigint_digits: 500000, time_collect: 2000, repetition: 100 },
+      { div_size: 6000, layer: 40, stress: 1, num_workers: 16, bigint_digits: 500000, time_collect: 2000, repetition: 100 },
+      
+      // Worker count variation with high layer
+      { div_size: 4000, layer: 40, stress: 1, num_workers: 8, bigint_digits: 500000, time_collect: 2000, repetition: 100 },
+      { div_size: 4000, layer: 40, stress: 1, num_workers: 32, bigint_digits: 500000, time_collect: 2000, repetition: 100 },
+      
+      // Very long collection times (might help)
+      { div_size: 4000, layer: 30, stress: 0, time_collect: 5000, repetition: 200 },
+      { div_size: 4000, layer: 40, stress: 0, time_collect: 5000, repetition: 200 },
+      { div_size: 4000, layer: 30, stress: 1, num_workers: 16, bigint_digits: 500000, time_collect: 5000, repetition: 200 },
+      
+      // Extended warmup
+      { div_size: 4000, layer: 30, stress: 0, warmup: 10000, time_collect: 2000, repetition: 100 },
+      { div_size: 4000, layer: 40, stress: 1, num_workers: 16, bigint_digits: 500000, warmup: 10000, time_collect: 2000, repetition: 100 },
     ];
 
     for (let candidate of optimalCandidates) {
@@ -137,27 +175,23 @@ class ParameterCharacterization {
       });
     }
     
-    // Test 5: Extreme threshold values (low/high)
+    // OPTIMIZED Test 5: Threshold testing (reduced - thresholds don't help if ratio is ~1.0)
+    // Only test a few key threshold combinations
     const thresholdCombos = [
-      { low: 0.1, high: 0.3 },
-      { low: 0.2, high: 0.4 },
-      { low: 0.3, high: 0.5 },
-      { low: 0.4, high: 0.6 },
-      { low: 0.5, high: 0.7 },
-      { low: 0.6, high: 0.8 },
-      { low: 0.7, high: 0.9 },
-      { low: 0.1, high: 0.9 },
+      { low: 0.3, high: 0.7 },  // Default
+      { low: 0.2, high: 0.8 },  // Wider
+      { low: 0.4, high: 0.6 },  // Narrower
     ];
     
     for (let thresh of thresholdCombos) {
       configs.push({
         name: `threshold_low_${thresh.low}_high_${thresh.high}`,
-        time_collect: 1000,
+        time_collect: 2000,  // Increased
         repetition: 100,
         stress: 0,
         warmup: 5000,
         div_size: 4000,
-        layer: 20,
+        layer: 30,  // Increased from 20
         num_workers: 4,
         bigint_digits: 100000,
         low: thresh.low,
