@@ -76,21 +76,53 @@ function readConfig() {
 
 // Start memory stress workers
 function startStressWorkers() {
-  if (stressType === 0) return;
+  if (stressType === 0) {
+    console.log('[Stress] Stress disabled (stressType=0)');
+    return;
+  }
   
-  console.log(`[Stress] Starting ${numWorkers} memory stress workers`);
+  console.log(`[Stress] Starting ${numWorkers} memory stress workers with ${bigintDigits} digits each`);
+  
+  let successCount = 0;
+  let errorCount = 0;
   
   for (let i = 0; i < numWorkers; i++) {
     try {
       const worker = new Worker('../shared/worker_big.js');
+      
+      // Add error handler to detect worker issues
+      worker.onerror = function(e) {
+        console.error(`[Stress] Worker ${i+1} error:`, e);
+        errorCount++;
+      };
+      
+      // Add message handler to verify worker is alive
+      worker.onmessage = function(e) {
+        console.log(`[Stress] Worker ${i+1} message (should not receive messages):`, e.data);
+      };
+      
       worker.postMessage({ digits: bigintDigits });
       workers.push(worker);
+      successCount++;
+      
+      console.log(`[Stress] Worker ${i+1} started successfully with ${bigintDigits} digits`);
     } catch (e) {
-      console.error('[Stress] Failed to start worker:', e);
+      console.error(`[Stress] Failed to start worker ${i+1}:`, e);
+      errorCount++;
     }
   }
   
-  updateStatus(`Stress workers: ${workers.length} active`);
+  updateStatus(`Stress workers: ${successCount} active, ${errorCount} failed`);
+  console.log(`[Stress] Summary: ${successCount} workers started, ${errorCount} errors`);
+  
+  // Verify workers after a short delay
+  setTimeout(() => {
+    const activeWorkers = workers.filter(w => w && !w.isTerminated);
+    console.log(`[Stress] Verification: ${activeWorkers.length}/${workers.length} workers still active`);
+    if (activeWorkers.length < workers.length) {
+      console.warn(`[Stress] WARNING: Some workers may have terminated unexpectedly`);
+    }
+  }, 1000);
 }
 
 // Stop memory stress workers

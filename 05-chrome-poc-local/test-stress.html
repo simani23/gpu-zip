@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Memory Stress Verification</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      max-width: 800px;
+    }
+    .status {
+      background: #f0f0f0;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .error {
+      color: red;
+    }
+    .success {
+      color: green;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+    }
+    #workers-status {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Stress Worker Verification</h1>
+  
+  <div>
+    <label>Number of Workers: <input type="number" id="numWorkers" value="4" min="1" max="32"></label><br>
+    <label>BigInt Digits: <input type="number" id="bigintDigits" value="100000" min="10000" max="1000000"></label><br>
+    <button onclick="startWorkers()">Start Workers</button>
+    <button onclick="stopWorkers()">Stop Workers</button>
+  </div>
+  
+  <div id="status" class="status">Ready. Click "Start Workers" to test.</div>
+  
+  <div id="workers-status"></div>
+  
+  <div>
+    <h3>How to Verify:</h3>
+    <ul>
+      <li><strong>Browser Console:</strong> Should show "[Worker-X] Started" messages</li>
+      <li><strong>Task Manager/Activity Monitor:</strong> Check CPU usage - should increase when workers start</li>
+      <li><strong>Worker Status:</strong> Should show "Active" for each worker below</li>
+      <li><strong>Browser may slow down:</strong> If workers are working, the page may become less responsive</li>
+    </ul>
+  </div>
+  
+  <script>
+    let workers = [];
+    
+    function updateStatus(message, isError = false) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = 'status ' + (isError ? 'error' : 'success');
+      console.log('[Stress Test]', message);
+    }
+    
+    function updateWorkersStatus() {
+      const div = document.getElementById('workers-status');
+      if (workers.length === 0) {
+        div.innerHTML = '<p>No workers running</p>';
+        return;
+      }
+      
+      let html = '<h3>Worker Status:</h3><ul>';
+      workers.forEach((worker, idx) => {
+        const isActive = worker && !worker.isTerminated;
+        html += `<li>Worker ${idx + 1}: <strong>${isActive ? 'ACTIVE' : 'TERMINATED'}</strong></li>`;
+      });
+      html += '</ul>';
+      html += `<p><strong>Total Active Workers: ${workers.filter(w => w && !w.isTerminated).length}/${workers.length}</strong></p>`;
+      div.innerHTML = html;
+    }
+    
+    function startWorkers() {
+      stopWorkers(); // Clear any existing workers
+      
+      const numWorkers = parseInt(document.getElementById('numWorkers').value);
+      const bigintDigits = parseInt(document.getElementById('bigintDigits').value);
+      
+      updateStatus(`Starting ${numWorkers} workers with ${bigintDigits} digits...`);
+      
+      for (let i = 0; i < numWorkers; i++) {
+        try {
+          const worker = new Worker('shared/worker_big.js');
+          
+          worker.onmessage = function(e) {
+            console.log(`[Worker-${i+1}] Received message:`, e.data);
+          };
+          
+          worker.onerror = function(e) {
+            console.error(`[Worker-${i+1}] Error:`, e);
+            updateStatus(`Worker ${i+1} error: ${e.message}`, true);
+          };
+          
+          worker.postMessage({ digits: bigintDigits });
+          workers.push(worker);
+          
+          console.log(`[Worker-${i+1}] Started with ${bigintDigits} digits`);
+        } catch (e) {
+          updateStatus(`Failed to create worker ${i+1}: ${e.message}`, true);
+          console.error('[Stress Test] Worker creation failed:', e);
+        }
+      }
+      
+      setTimeout(() => {
+        updateStatus(`Started ${workers.length} workers. Check CPU usage and console for verification.`);
+        updateWorkersStatus();
+        
+        // Verify workers are still running after a moment
+        setTimeout(() => {
+          const active = workers.filter(w => w && !w.isTerminated).length;
+          if (active === workers.length) {
+            updateStatus(`✓ All ${active} workers are active and running!`, false);
+          } else {
+            updateStatus(`⚠ Only ${active}/${workers.length} workers are active.`, true);
+          }
+          updateWorkersStatus();
+        }, 1000);
+      }, 100);
+    }
+    
+    function stopWorkers() {
+      const count = workers.length;
+      workers.forEach(w => {
+        try {
+          w.terminate();
+        } catch (e) {
+          console.error('Error terminating worker:', e);
+        }
+      });
+      workers = [];
+      updateStatus(`Stopped ${count} workers.`);
+      updateWorkersStatus();
+    }
+    
+    // Update worker status periodically
+    setInterval(updateWorkersStatus, 2000);
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', stopWorkers);
+  </script>
+</body>
+</html>
+

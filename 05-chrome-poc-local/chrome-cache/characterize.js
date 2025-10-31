@@ -14,20 +14,23 @@ class CacheCharacterization {
   generateTestConfigs() {
     const configs = [];
     
-    // Parameter ranges for systematic search
+    // Parameter ranges for systematic search - EXTENDED RANGES for better separation
     const paramRanges = {
-      time: [1000, 2000, 3000, 5000],
-      repetition: [50, 100, 150, 200],
-      warmup_time: [5, 10, 15, 20],
-      div_size: [500, 1000, 1500, 2000], // Smaller than rendering time version
-      layer: [5, 10, 15, 20, 30],
-      low: [0.3, 0.4, 0.5],
-      high: [0.6, 0.7, 0.8]
+      time: [500, 1000, 2000, 3000, 5000, 10000],
+      repetition: [20, 50, 100, 150, 200, 300, 500],
+      warmup_time: [0, 5, 10, 15, 20, 30, 60],
+      div_size: [250, 500, 1000, 1500, 2000, 3000, 4000, 5000], // Extended range
+      layer: [1, 3, 5, 10, 15, 20, 30, 40, 50],
+      low: [0.1, 0.2, 0.3, 0.4, 0.5],
+      high: [0.5, 0.6, 0.7, 0.8, 0.9]
     };
 
-    // Test 1: Vary div_size and layer (most important for LLC pressure)
-    for (let div_size of paramRanges.div_size) {
-      for (let layer of paramRanges.layer) {
+    // Test 1: Vary div_size and layer (most important for LLC pressure) - use extreme values
+    const extremeDivSizes = [250, 500, 1000, 2000, 3000, 4000, 5000];
+    const extremeLayers = [1, 3, 5, 10, 15, 20, 30, 40, 50];
+    
+    for (let div_size of extremeDivSizes) {
+      for (let layer of extremeLayers) {
         configs.push({
           name: `divsize_${div_size}_layer_${layer}`,
           time: 2000,
@@ -41,9 +44,12 @@ class CacheCharacterization {
       }
     }
 
-    // Test 2: Vary time and repetition
-    for (let time of paramRanges.time) {
-      for (let rept of paramRanges.repetition) {
+    // Test 2: Vary time and repetition with more extreme values
+    const extremeTimes = [500, 1000, 2000, 5000, 10000];
+    const extremeRepetitions = [20, 50, 100, 200, 300, 500];
+    
+    for (let time of extremeTimes) {
+      for (let rept of extremeRepetitions) {
         configs.push({
           name: `time_${time}_rept_${rept}`,
           time: time,
@@ -57,42 +63,72 @@ class CacheCharacterization {
       }
     }
 
-    // Test 3: Vary thresholds
-    for (let low of paramRanges.low) {
-      for (let high of paramRanges.high) {
-        if (low >= high) continue;
-        configs.push({
-          name: `threshold_low_${low}_high_${high}`,
-          time: 2000,
-          repetition: 100,
-          warmup_time: 10,
-          div_size: 1000,
-          layer: 10,
-          low: low,
-          high: high
-        });
-      }
+    // Test 3: Vary thresholds with more extreme values
+    const thresholdCombos = [
+      { low: 0.1, high: 0.3 },
+      { low: 0.1, high: 0.5 },
+      { low: 0.1, high: 0.7 },
+      { low: 0.1, high: 0.9 },
+      { low: 0.2, high: 0.4 },
+      { low: 0.2, high: 0.6 },
+      { low: 0.2, high: 0.8 },
+      { low: 0.3, high: 0.5 },
+      { low: 0.3, high: 0.7 },
+      { low: 0.3, high: 0.9 },
+      { low: 0.4, high: 0.6 },
+      { low: 0.4, high: 0.8 },
+      { low: 0.5, high: 0.7 },
+      { low: 0.5, high: 0.9 },
+      { low: 0.6, high: 0.8 },
+      { low: 0.7, high: 0.9 },
+    ];
+    
+    for (let thresh of thresholdCombos) {
+      configs.push({
+        name: `threshold_low_${thresh.low}_high_${thresh.high}`,
+        time: 2000,
+        repetition: 100,
+        warmup_time: 10,
+        div_size: 1000,
+        layer: 10,
+        low: thresh.low,
+        high: thresh.high
+      });
     }
 
-    // Test 4: Optimal candidates
+    // Test 4: Optimal candidates with extreme values
     const optimalCandidates = [
-      { div_size: 1000, layer: 15 },
-      { div_size: 1000, layer: 20 },
-      { div_size: 1500, layer: 15 },
-      { div_size: 1500, layer: 20 },
-      { div_size: 500, layer: 30 }
+      // Low layer, high div_size
+      { div_size: 5000, layer: 1 },
+      { div_size: 4000, layer: 3 },
+      { div_size: 3000, layer: 5 },
+      // High layer, high div_size
+      { div_size: 3000, layer: 40 },
+      { div_size: 4000, layer: 50 },
+      { div_size: 2000, layer: 50 },
+      // High layer, low div_size
+      { div_size: 250, layer: 50 },
+      { div_size: 500, layer: 40 },
+      { div_size: 500, layer: 30 },
+      // Medium combinations
+      { div_size: 2000, layer: 20 },
+      { div_size: 3000, layer: 30 },
+      // Extreme warmup
+      { div_size: 2000, layer: 20, warmup_time: 0 },
+      { div_size: 2000, layer: 20, warmup_time: 60 },
+      { div_size: 4000, layer: 30, warmup_time: 30 },
     ];
 
     for (let candidate of optimalCandidates) {
       configs.push({
         name: `optimal_candidate_${configs.length}`,
-        time: 3000,
-        repetition: 150,
-        warmup_time: 15,
+        time: candidate.time || 3000,
+        repetition: candidate.repetition || 150,
+        warmup_time: candidate.warmup_time || 15,
         div_size: candidate.div_size,
         layer: candidate.layer,
-        low: 0.5,
-        high: 0.8
+        low: candidate.low || 0.5,
+        high: candidate.high || 0.8
       });
     }
 
@@ -113,9 +149,40 @@ class CacheCharacterization {
 
   // Extract results after test
   extractResults() {
-    const blackTime = parseFloat(document.getElementById('black-time').textContent);
-    const whiteTime = parseFloat(document.getElementById('white-time').textContent);
-    const ratio = parseFloat(document.getElementById('timing-ratio').textContent);
+    const blackTimeEl = document.getElementById('black-time');
+    const whiteTimeEl = document.getElementById('white-time');
+    const ratioEl = document.getElementById('timing-ratio');
+    
+    // Get text content and validate
+    const blackTimeText = blackTimeEl.textContent.trim();
+    const whiteTimeText = whiteTimeEl.textContent.trim();
+    const ratioText = ratioEl.textContent.trim();
+    
+    // Validate that we have actual results (not '-' or empty)
+    if (blackTimeText === '-' || blackTimeText === '' || 
+        whiteTimeText === '-' || whiteTimeText === '' ||
+        ratioText === '-' || ratioText === '') {
+      console.warn('[LLC-CHARACTERIZATION] Results not ready or invalid:', {
+        blackTime: blackTimeText,
+        whiteTime: whiteTimeText,
+        ratio: ratioText
+      });
+      return null;
+    }
+    
+    const blackTime = parseFloat(blackTimeText);
+    const whiteTime = parseFloat(whiteTimeText);
+    const ratio = parseFloat(ratioText);
+    
+    // Validate parsed numbers
+    if (isNaN(blackTime) || isNaN(whiteTime) || isNaN(ratio)) {
+      console.error('[LLC-CHARACTERIZATION] Failed to parse results:', {
+        blackTime: blackTimeText,
+        whiteTime: whiteTimeText,
+        ratio: ratioText
+      });
+      return null;
+    }
     
     return {
       blackTime,
@@ -133,11 +200,16 @@ class CacheCharacterization {
     console.log(`[LLC-CHARACTERIZATION] Parameters:`, config);
     console.log(`========================================\n`);
 
+    // Reset any previous results to ensure we don't read stale data
+    document.getElementById('black-time').textContent = '-';
+    document.getElementById('white-time').textContent = '-';
+    document.getElementById('timing-ratio').textContent = '-';
+
     // Apply configuration
     this.applyConfig(config);
 
-    // Wait for UI to update
-    await this.sleep(500);
+    // Wait for UI to update - ensure all inputs are set
+    await this.sleep(1000);
 
     // Run the test by triggering the run button
     return new Promise((resolve, reject) => {
@@ -148,15 +220,17 @@ class CacheCharacterization {
       window.updateStatus = function(message) {
         originalUpdateStatus.call(this, message);
         
-        // Check if test is complete
+        // Check if test is complete - look for Done or complete messages
         if (message.includes('Done') || message.includes('complete') || message.includes('LLC timing separation')) {
           if (!testCompleted) {
             testCompleted = true;
             // Restore original function
             window.updateStatus = originalUpdateStatus;
             
-            // Wait a bit for results to be displayed
-            setTimeout(() => resolve(), 1000);
+            // Wait additional time to ensure DOM is fully updated and measurements are complete
+            setTimeout(() => {
+              resolve();
+            }, 500);
           }
         }
       };
@@ -217,26 +291,43 @@ class CacheCharacterization {
       try {
         await this.runSingleTest(config);
         
-        // Extract results
-        const results = this.extractResults();
+        // Extract results - retry if needed
+        let results = this.extractResults();
+        let retries = 0;
+        while (results === null && retries < 5) {
+          console.warn(`[LLC-CHARACTERIZATION] Results not ready, retrying... (${retries + 1}/5)`);
+          await this.sleep(500);
+          results = this.extractResults();
+          retries++;
+        }
         
-        // Store combined result
-        const testResult = {
-          testNumber: i + 1,
-          config: config,
-          results: results
-        };
-        
-        this.results.push(testResult);
+        if (results === null) {
+          console.error(`[LLC-CHARACTERIZATION] Test ${i + 1} failed: Could not extract valid results after retries`);
+          this.results.push({
+            testNumber: i + 1,
+            config: config,
+            results: null,
+            error: 'Failed to extract results'
+          });
+        } else {
+          // Store combined result
+          const testResult = {
+            testNumber: i + 1,
+            config: config,
+            results: results
+          };
+          
+          this.results.push(testResult);
 
-        // Log result
-        console.log(`[LLC-CHARACTERIZATION] Test ${i + 1} Results:`);
-        console.log(`  Black: ${results.blackTime.toFixed(2)} μs`);
-        console.log(`  White: ${results.whiteTime.toFixed(2)} μs`);
-        console.log(`  Ratio: ${results.ratio.toFixed(3)}`);
-        console.log(`  Quality: ${this.evaluateQuality(results.ratio)}`);
+          // Log result
+          console.log(`[LLC-CHARACTERIZATION] Test ${i + 1} Results:`);
+          console.log(`  Black: ${results.blackTime.toFixed(2)} μs`);
+          console.log(`  White: ${results.whiteTime.toFixed(2)} μs`);
+          console.log(`  Ratio: ${results.ratio.toFixed(3)}`);
+          console.log(`  Quality: ${this.evaluateQuality(results.ratio)}`);
+        }
 
-        // Wait between tests
+        // Wait between tests to ensure clean state
         await this.sleep(3000);
 
       } catch (error) {

@@ -14,22 +14,26 @@ class ParameterCharacterization {
   generateTestConfigs() {
     const configs = [];
     
-    // Parameter ranges for systematic search
+    // Parameter ranges for systematic search - EXTENDED RANGES for better separation
     const paramRanges = {
-      time_collect: [300, 500, 1000, 2000],
-      repetition: [30, 50, 100],
+      time_collect: [100, 200, 300, 500, 1000, 2000, 5000, 10000],
+      repetition: [10, 20, 30, 50, 100, 200, 300, 500],
       stress: [0, 1],
-      warmup: [2000, 5000, 10000],
-      div_size: [1000, 2000, 3000, 4000],
-      layer: [5, 10, 15, 20],
-      num_workers: [2, 4, 8],
-      bigint_digits: [50000, 100000, 200000],
+      warmup: [0, 1000, 2000, 5000, 10000, 20000],
+      div_size: [500, 1000, 2000, 3000, 4000, 6000, 8000, 10000],
+      layer: [1, 3, 5, 10, 15, 20, 25, 30, 40, 50],
+      num_workers: [1, 2, 4, 8, 16, 32],
+      bigint_digits: [10000, 25000, 50000, 100000, 200000, 500000, 1000000],
     };
 
     // Grid search over key parameters (keeping others at defaults)
     // Test 1: Vary div_size and layer (most important for black/white separation)
-    for (let div_size of paramRanges.div_size) {
-      for (let layer of paramRanges.layer) {
+    // Use more extreme values to find better separation
+    const extremeDivSizes = [500, 1000, 2000, 4000, 6000, 8000, 10000];
+    const extremeLayers = [1, 3, 5, 10, 15, 20, 30, 40, 50];
+    
+    for (let div_size of extremeDivSizes) {
+      for (let layer of extremeLayers) {
         configs.push({
           name: `divsize_${div_size}_layer_${layer}`,
           time_collect: 500,
@@ -46,9 +50,12 @@ class ParameterCharacterization {
       }
     }
 
-    // Test 2: Vary time_collect and repetition
-    for (let time of paramRanges.time_collect) {
-      for (let rept of paramRanges.repetition) {
+    // Test 2: Vary time_collect and repetition with more extreme values
+    const extremeTimes = [100, 200, 500, 1000, 2000, 5000, 10000];
+    const extremeRepetitions = [10, 20, 50, 100, 200, 300, 500];
+    
+    for (let time of extremeTimes) {
+      for (let rept of extremeRepetitions) {
         configs.push({
           name: `time_${time}_rept_${rept}`,
           time_collect: time,
@@ -65,11 +72,14 @@ class ParameterCharacterization {
       }
     }
 
-    // Test 3: With memory stress enabled
+    // Test 3: With memory stress enabled - use more extreme values
     for (let stress of paramRanges.stress) {
       if (stress === 0) continue; // Already tested above
-      for (let workers of paramRanges.num_workers) {
-        for (let digits of paramRanges.bigint_digits) {
+      const extremeWorkers = [1, 4, 8, 16, 32];
+      const extremeDigits = [10000, 50000, 200000, 500000, 1000000];
+      
+      for (let workers of extremeWorkers) {
+        for (let digits of extremeDigits) {
           configs.push({
             name: `stress_workers_${workers}_digits_${digits}`,
             time_collect: 500,
@@ -87,27 +97,71 @@ class ParameterCharacterization {
       }
     }
 
-    // Test 4: Combined optimal parameters (after finding good ranges)
+    // Test 4: Combined optimal parameters with extreme values
+    // Test extreme combinations that might achieve better separation
     const optimalCandidates = [
-      { div_size: 3000, layer: 15, stress: 0 },
-      { div_size: 3000, layer: 20, stress: 0 },
-      { div_size: 4000, layer: 15, stress: 0 },
-      { div_size: 2000, layer: 15, stress: 1, num_workers: 8, bigint_digits: 200000 },
+      // Low layer, high div_size
+      { div_size: 8000, layer: 1, stress: 0 },
+      { div_size: 10000, layer: 3, stress: 0 },
+      { div_size: 6000, layer: 5, stress: 0 },
+      // High layer, high div_size
+      { div_size: 4000, layer: 40, stress: 0 },
+      { div_size: 6000, layer: 50, stress: 0 },
+      { div_size: 8000, layer: 30, stress: 0 },
+      // High layer, low div_size
+      { div_size: 500, layer: 50, stress: 0 },
+      { div_size: 1000, layer: 40, stress: 0 },
+      // With stress and extreme workers/digits
+      { div_size: 2000, layer: 15, stress: 1, num_workers: 32, bigint_digits: 1000000 },
+      { div_size: 4000, layer: 20, stress: 1, num_workers: 16, bigint_digits: 500000 },
+      { div_size: 6000, layer: 25, stress: 1, num_workers: 16, bigint_digits: 200000 },
+      // Extreme warmup values
+      { div_size: 4000, layer: 20, stress: 0, warmup: 0 },
+      { div_size: 4000, layer: 20, stress: 0, warmup: 20000 },
+      { div_size: 8000, layer: 30, stress: 0, warmup: 10000 },
     ];
 
     for (let candidate of optimalCandidates) {
       configs.push({
         name: `optimal_candidate_${configs.length}`,
-        time_collect: 500,
-        repetition: 100,
+        time_collect: candidate.time_collect || 500,
+        repetition: candidate.repetition || 100,
         stress: candidate.stress || 0,
-        warmup: 5000,
+        warmup: candidate.warmup || 5000,
         div_size: candidate.div_size,
         layer: candidate.layer,
         num_workers: candidate.num_workers || 4,
         bigint_digits: candidate.bigint_digits || 100000,
         low: 0.3,
         high: 0.7
+      });
+    }
+    
+    // Test 5: Extreme threshold values (low/high)
+    const thresholdCombos = [
+      { low: 0.1, high: 0.3 },
+      { low: 0.2, high: 0.4 },
+      { low: 0.3, high: 0.5 },
+      { low: 0.4, high: 0.6 },
+      { low: 0.5, high: 0.7 },
+      { low: 0.6, high: 0.8 },
+      { low: 0.7, high: 0.9 },
+      { low: 0.1, high: 0.9 },
+    ];
+    
+    for (let thresh of thresholdCombos) {
+      configs.push({
+        name: `threshold_low_${thresh.low}_high_${thresh.high}`,
+        time_collect: 1000,
+        repetition: 100,
+        stress: 0,
+        warmup: 5000,
+        div_size: 4000,
+        layer: 20,
+        num_workers: 4,
+        bigint_digits: 100000,
+        low: thresh.low,
+        high: thresh.high
       });
     }
 
@@ -131,9 +185,40 @@ class ParameterCharacterization {
 
   // Extract results after test
   extractResults() {
-    const blackTime = parseFloat(document.getElementById('black-time').textContent);
-    const whiteTime = parseFloat(document.getElementById('white-time').textContent);
-    const ratio = parseFloat(document.getElementById('timing-ratio').textContent);
+    const blackTimeEl = document.getElementById('black-time');
+    const whiteTimeEl = document.getElementById('white-time');
+    const ratioEl = document.getElementById('timing-ratio');
+    
+    // Get text content and validate
+    const blackTimeText = blackTimeEl.textContent.trim();
+    const whiteTimeText = whiteTimeEl.textContent.trim();
+    const ratioText = ratioEl.textContent.trim();
+    
+    // Validate that we have actual results (not '-' or empty)
+    if (blackTimeText === '-' || blackTimeText === '' || 
+        whiteTimeText === '-' || whiteTimeText === '' ||
+        ratioText === '-' || ratioText === '') {
+      console.warn('[CHARACTERIZATION] Results not ready or invalid:', {
+        blackTime: blackTimeText,
+        whiteTime: whiteTimeText,
+        ratio: ratioText
+      });
+      return null;
+    }
+    
+    const blackTime = parseFloat(blackTimeText);
+    const whiteTime = parseFloat(whiteTimeText);
+    const ratio = parseFloat(ratioText);
+    
+    // Validate parsed numbers
+    if (isNaN(blackTime) || isNaN(whiteTime) || isNaN(ratio)) {
+      console.error('[CHARACTERIZATION] Failed to parse results:', {
+        blackTime: blackTimeText,
+        whiteTime: whiteTimeText,
+        ratio: ratioText
+      });
+      return null;
+    }
     
     return {
       blackTime,
@@ -151,11 +236,16 @@ class ParameterCharacterization {
     console.log(`[CHARACTERIZATION] Parameters:`, config);
     console.log(`========================================\n`);
 
+    // Reset any previous results to ensure we don't read stale data
+    document.getElementById('black-time').textContent = '-';
+    document.getElementById('white-time').textContent = '-';
+    document.getElementById('timing-ratio').textContent = '-';
+
     // Apply configuration
     this.applyConfig(config);
 
-    // Wait for UI to update
-    await this.sleep(500);
+    // Wait for UI to update - ensure all inputs are set
+    await this.sleep(1000);
 
     // Run the test by triggering the run button
     return new Promise((resolve, reject) => {
@@ -166,13 +256,17 @@ class ParameterCharacterization {
       window.updateStatus = function(message) {
         originalUpdateStatus.call(this, message);
         
-        // Check if test is complete
+        // Check if test is complete - look for Done or complete messages
         if (message.includes('Done') || message.includes('complete') || message.includes('Accuracy')) {
           if (!testCompleted) {
             testCompleted = true;
             // Restore original function
             window.updateStatus = originalUpdateStatus;
-            resolve();
+            
+            // Wait additional time to ensure DOM is fully updated and measurements are complete
+            setTimeout(() => {
+              resolve();
+            }, 500);
           }
         }
       };
@@ -233,26 +327,43 @@ class ParameterCharacterization {
       try {
         await this.runSingleTest(config);
         
-        // Extract results
-        const results = this.extractResults();
+        // Extract results - retry if needed
+        let results = this.extractResults();
+        let retries = 0;
+        while (results === null && retries < 5) {
+          console.warn(`[CHARACTERIZATION] Results not ready, retrying... (${retries + 1}/5)`);
+          await this.sleep(500);
+          results = this.extractResults();
+          retries++;
+        }
         
-        // Store combined result
-        const testResult = {
-          testNumber: i + 1,
-          config: config,
-          results: results
-        };
-        
-        this.results.push(testResult);
+        if (results === null) {
+          console.error(`[CHARACTERIZATION] Test ${i + 1} failed: Could not extract valid results after retries`);
+          this.results.push({
+            testNumber: i + 1,
+            config: config,
+            results: null,
+            error: 'Failed to extract results'
+          });
+        } else {
+          // Store combined result
+          const testResult = {
+            testNumber: i + 1,
+            config: config,
+            results: results
+          };
+          
+          this.results.push(testResult);
 
-        // Log result
-        console.log(`[CHARACTERIZATION] Test ${i + 1} Results:`);
-        console.log(`  Black: ${results.blackTime.toFixed(2)} ms`);
-        console.log(`  White: ${results.whiteTime.toFixed(2)} ms`);
-        console.log(`  Ratio: ${results.ratio.toFixed(3)}`);
-        console.log(`  Quality: ${this.evaluateQuality(results.ratio)}`);
+          // Log result
+          console.log(`[CHARACTERIZATION] Test ${i + 1} Results:`);
+          console.log(`  Black: ${results.blackTime.toFixed(2)} ms`);
+          console.log(`  White: ${results.whiteTime.toFixed(2)} ms`);
+          console.log(`  Ratio: ${results.ratio.toFixed(3)}`);
+          console.log(`  Quality: ${this.evaluateQuality(results.ratio)}`);
+        }
 
-        // Wait between tests
+        // Wait between tests to ensure clean state
         await this.sleep(2000);
 
       } catch (error) {
