@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import os
 import argparse
 import sys
+import json
 
 def parse_file(fn):
     readings = []
@@ -129,7 +130,10 @@ def plot(myDict, output_file="./plot/time.pdf"):
     plt.clf()
     plt.close()
 
-
+def save_plotted_data(data_dict, output_file):
+    with open(output_file, 'w') as f:
+        json.dump(data_dict, f)
+    print(f"Data of plot saved to: {output_file}")
 
 def main():
     # Prepare clean output directory
@@ -156,8 +160,10 @@ Examples:
     parser.add_argument('--random', help='Random pattern timing file')
     parser.add_argument('--gradient', help='Gradient pattern timing file')
     parser.add_argument('--skew', help='Skew pattern timing file')
-    parser.add_argument('-o', '--output', default='./plot/time.pdf', 
+    parser.add_argument('--output_plot', default='./plot/time.pdf', 
                        help='Output PDF file (default: ./plot/time.pdf)')
+    parser.add_argument('--output_data', default='./plot/time.dat', 
+                       help='Output PDF file (default: ./plot/data.dat)')
     
     parser.add_argument('file1', nargs='?', help='First file (Compressible/Black)')
     parser.add_argument('file2', nargs='?', help='Second file (Non-compressible/Random)')
@@ -192,9 +198,8 @@ Examples:
         print("Error: No valid timing data found")
         sys.exit(1)
 
-    plot(pattern_dict, args.output)
-
-    
+    plot(pattern_dict, args.output_plot)
+    save_plotted_data(pattern_dict, args.output_data)
 
 if __name__ == "__main__":
     main()
